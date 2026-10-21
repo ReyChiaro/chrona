@@ -367,7 +367,7 @@ export class WorldRuntime {
         this.simulationChunks.set(key, this.chunks.active.get(key)!);
       if (!this.simulationChunks.has(key)) {
         const record = this.chunks.records.get(key),
-          chunk = this.content.generate(cell, this.config, record);
+          chunk = this.chunks.preparedChunk(cell);
         if (record && record.fingerprint !== chunk.fingerprint)
           throw new LocalizedError(
             "adapters.runtime.chunk-has-a-generation-fingerprint-that-differs-from-the",
@@ -599,6 +599,7 @@ export class WorldRuntime {
   applyRuntimeConfig(config: WorldConfig): void {
     this.config = config;
     this.chunks.config = config;
+    this.chunks.invalidatePrepared();
     this.clock.config = config.clock;
     this.physics.gravity = { x: 0, y: -config.physics.gravity, z: 0 };
     this.physics.timestep = 1 / config.physics.frequency;
@@ -672,6 +673,7 @@ export class WorldRuntime {
         );
     }
     this.content.install(pack, options.futureChunks ?? false);
+    this.chunks.invalidatePrepared();
     if (target) {
       this.content.state.overrides[target.id] = {
         package: `${pack.id}@${pack.version}`,
@@ -820,6 +822,7 @@ export class WorldRuntime {
   }
 
   refreshEditedObjects(): void {
+    this.chunks.invalidatePrepared();
     for (const chunk of new Map([
       ...this.simulationChunks,
       ...this.chunks.active,

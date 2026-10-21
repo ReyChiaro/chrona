@@ -86,7 +86,6 @@ def test_connection_api_records_safe_failures_and_success_without_changing_saved
     app = create_app(Settings(data_dir=tmp_path, provider='chrona.adapters.providers.disabled:DisabledRenderer', preload=False,
         agent_settings_path=tmp_path / 'agent.json'))
     with TestClient(app) as client:
-        client.post('/api/render/content/agent/unlock', json={'accessToken': app.state.agents.access.owner_token})
         app.state.agents.store.save(update(apiKey=SECRET))
         original = app.state.agents.store.path.read_bytes()
         payload = update().model_dump(mode='json')
@@ -153,29 +152,54 @@ def test_api_asks_questions_without_claiming_mutation_and_does_not_fall_back():
         run_scene_agent(request, config, 'http://world.local', api_transport=httpx.MockTransport(lambda _: httpx.Response(500)))
 
 
-def test_owner_auth_is_required_for_settings_tests_and_paid_calls_and_keys_never_echo(tmp_path):
+def test_agent_settings_and_calls_need_no_server_token_and_keys_never_echo(tmp_path, monkeypatch):
     app = create_app(Settings(data_dir=tmp_path, provider='chrona.adapters.providers.disabled:DisabledRenderer', preload=False,
                               agent_settings_path=tmp_path / 'settings.json'))
+    monkeypatch.setattr('chrona.api.authoring.test_connection', lambda config: {'ok': True, 'model': config.model, 'latencyMs': 1})
+    monkeypatch.setattr('chrona.authoring.agents.manager.run_scene_agent', lambda *a, **kw: {
+        'mode': 'api', 'model': 'a-code-model', 'trace': [], 'message': 'Ready'})
     with TestClient(app) as client:
-        assert client.get('/api/render/content/agent/status').json()['mode'] == 'unconfigured'
-        for method, path in [('get', '/api/render/content/agent'), ('put', '/api/render/content/agent'), ('post', '/api/render/content/agent/test')]:
-            response = getattr(client, method)(path, **({} if method == 'get' else {'json': {}}))
-            assert response.status_code == 401
-        access = app.state.agents.access
-        assert stat.S_IMODE(access.path.stat().st_mode) == 0o600
-        assert client.post('/api/render/content/agent/unlock', json={'accessToken': 'bad'}).status_code == 401
-        response = client.post('/api/render/content/agent/unlock', json={'accessToken': access.owner_token})
-        cookie = response.headers['set-cookie'].lower(); assert 'httponly' in cookie and 'samesite=strict' in cookie
-        assert client.get('/api/render/content/agent/status').json()['unlocked']
+        status = client.get('/api/render/content/agent/status').json()
+        assert status['mode'] == 'unconfigured' and 'unlocked' not in status
+        assert client.get('/api/render/content/agent').status_code == 200
+        assert not list(tmp_path.rglob('access.token'))
+        for path in ['unlock', 'lock']:
+            assert client.post('/api/render/content/agent/' + path, json={}).status_code == 404
         response = client.put('/api/render/content/agent', json=update(apiKey=SECRET).model_dump(mode='json') | {'apiKey': SECRET})
         assert response.status_code == 200 and SECRET not in response.text
+        assert 'set-cookie' not in response.headers
         assert client.get('/api/render/content/agent').json()['hasApiKey']
-        assert client.put('/api/render/content/agent', headers={'Origin': 'https://untrusted.example'}, json={}).status_code == 403
+        assert stat.S_IMODE(app.state.agents.store.path.stat().st_mode) == 0o600
+        assert client.post('/api/render/content/agent/test', json=update().model_dump(mode='json')).status_code == 200
         request = {'requestId': str(uuid.uuid4()), 'worldId': 'world', 'prompt': 'new tree', 'referenceIds': []}
-        client.post('/api/render/content/agent/lock', json={})
-        assert client.post('/api/render/content/edit', json=request).status_code == 401
-        assert client.post('/api/render/content/agent/test', json={}).status_code == 401
+        result = client.post('/api/render/content/edit', json=request)
+        assert result.status_code == 200 and result.json()['mode'] == 'api'
+        assert client.post('/api/render/content/edit', json=request).json() == result.json()
+        assert client.get(f"/api/render/content/agent/runs/{request['requestId']}").json()['status'] == 'succeeded'
+        foreign = {'Origin': 'https://untrusted.example'}
+        assert client.get('/api/render/content/agent', headers=foreign).status_code == 403
+        assert client.put('/api/render/content/agent', headers=foreign, json={}).status_code == 403
+        assert client.post('/api/render/content/agent/test', headers=foreign, json={}).status_code == 403
+        assert client.post('/api/render/content/edit', headers=foreign, json=request).status_code == 403
+        assert client.get('/api/render/content/agent', headers={'Sec-Fetch-Site': 'cross-site'}).status_code == 403
+        assert client.get('/api/render/content/agent', headers={'Origin': 'http://localhost:4173'}).status_code == 200
         assert SECRET not in app.state.manager.journal.service_path.read_text()
+
+
+def test_standalone_authoring_settings_open_without_server_token(tmp_path):
+    from chrona.api.authoring import create_app as create_authoring_app
+
+    app = create_authoring_app(Settings(data_dir=tmp_path))
+    with TestClient(app) as client:
+        assert client.get('/api/render/content/agent').status_code == 200
+        response = client.put('/api/render/content/agent', json={
+            'enabled': True, 'baseUrl': 'https://provider.example/v1',
+            'model': 'a-code-model', 'apiKey': SECRET,
+        })
+        assert response.status_code == 200 and SECRET not in response.text
+        assert client.get('/api/render/content/agent/status').json()['configured']
+        assert not list(tmp_path.rglob('access.token'))
+        assert client.get('/api/render/content/agent', headers={'Origin': 'https://foreign.example'}).status_code == 403
 
 
 def test_combined_authoring_tool_keeps_validation_identity_and_failure_audit(tmp_path):

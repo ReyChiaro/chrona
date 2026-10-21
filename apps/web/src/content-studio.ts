@@ -211,7 +211,7 @@ export class ContentStudio {
   private updateAgent(status: AgentStatus): void {
     const text =
       status.mode === "api"
-        ? `${status.model}${status.unlocked ? "" : t("ui.content-studio.locked")}`
+        ? status.model
         : t("ui.content-studio.configure-code-agent");
     setText(this.at("composer-agent-mode"), text);
     setTranslatedAttribute(this.at("composer-agent-mode"), "title", text);

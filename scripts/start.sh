@@ -5,7 +5,7 @@ cd "$project_dir"
 export PATH="$project_dir/.tools/node/bin:$HOME/.local/bin:$PATH"
 if [[ -f .env ]]; then set -a; source .env; set +a; fi
 runtime_dir="${CHRONA_RUNTIME_DIR:-${CHRONA_DATA_DIR:-.data}/runtime}"
-export CHRONA_DATA_DIR="${CHRONA_DATA_DIR:-${CHRONA_DATA_DIR:-.data}/render}"
+export CHRONA_RENDER_DATA_DIR="${CHRONA_RENDER_DATA_DIR:-${CHRONA_DATA_DIR:-.data}/render}"
 mkdir -p "$runtime_dir"
 if [[ ! -f dist/index.html ]]; then npm run build; fi
 start_process() {

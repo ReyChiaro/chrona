@@ -2,7 +2,7 @@ import { msg } from "../../../packages/i18n/src/index";
 import type { IncomingMessage, ServerResponse } from "node:http";
 import { HttpError, json, readJson } from "./http";
 
-/** Owner-authenticated settings; public status exposes no endpoint or credential. */
+/** Workspace settings; public status exposes no endpoint or credential. */
 export async function agentRoutes(
   req: IncomingMessage,
   res: ServerResponse,
@@ -10,7 +10,7 @@ export async function agentRoutes(
   service: string,
 ): Promise<boolean> {
   if (
-    !/^\/api\/content\/agent(?:$|\/(?:status|test|unlock|lock)$|\/runs\/[a-f0-9-]{36}$)/.test(
+    !/^\/api\/content\/agent(?:$|\/(?:status|test)$|\/runs\/[a-f0-9-]{36}$)/.test(
       path,
     )
   )
@@ -50,15 +50,11 @@ export async function agentRoutes(
         headers: {
           "Content-Type": "application/json",
           "Accept-Language": req.headers["accept-language"] ?? "en",
-          Cookie: req.headers.cookie ?? "",
-          Authorization: req.headers.authorization ?? "",
         },
         body: body === undefined ? undefined : JSON.stringify(body),
         signal: AbortSignal.timeout(path.endsWith("/test") ? 330000 : 10000),
       },
     );
-    const cookies = response.headers.getSetCookie();
-    if (cookies.length) res.setHeader("Set-Cookie", cookies);
     json(res, response.status, await response.json());
   } catch (error) {
     json(res, error instanceof HttpError ? error.status : 503, {

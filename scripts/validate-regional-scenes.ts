@@ -22,8 +22,6 @@ const headers: Record<string, string> = {
   "Content-Type": "application/json",
   Connection: "close",
 };
-if (process.env.AGENT_ACCESS_TOKEN)
-  headers.Authorization = `Bearer ${process.env.AGENT_ACCESS_TOKEN}`;
 async function request(
   path: string,
   body?: unknown,

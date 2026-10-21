@@ -15,7 +15,6 @@ from fastapi import (
     UploadFile,
     Query,
     Request,
-    Response,
 )
 from fastapi.responses import FileResponse
 
@@ -26,11 +25,8 @@ from chrona.rendering.media import probe
 from chrona.rendering.continuous.manager import RouteManager
 from chrona.rendering.generation import VideoGeneration, VideoRequest
 from chrona.authoring.agents.manager import SceneAgentManager
-from chrona.authoring.agents.settings import AgentUpdate
-from chrona.authoring.agents.client import test_connection
-from chrona.authoring.agents.access import COOKIE, SESSION_SECONDS
+from chrona.infrastructure.browser_origin import BrowserOriginGuard
 from chrona.adapters.prompt_enhancement.routes import enhancement_routes
-from pydantic import ValidationError
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
@@ -49,6 +45,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         raise
     generation = VideoGeneration(manager, routes)
     agents = SceneAgentManager(settings, manager.journal)
+    check_origin = BrowserOriginGuard(
+        settings.agent_browser_origin or settings.agent_world_url
+    )
 
     @asynccontextmanager
     async def lifespan(app):
@@ -75,25 +74,18 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.state.agents = agents
     app.include_router(
         enhancement_routes(
-            routes.prompt_enhancement, agents.access, manager.journal
+            routes.prompt_enhancement, check_origin, manager.journal
         )
     )
 
-    def require_enhancement_access(request, identifier):
+    def check_enhancement_origin(request, identifier):
         job = generation.get(str(identifier))
         if job.get("promptEnhancement", {}).get("enabled"):
-            agents.access.require(request)
-
-    def config_error(error):
-        return (
-            "; ".join(e["msg"] for e in error.errors(include_input=False))
-            if isinstance(error, ValidationError)
-            else error_message(error)
-        )
+            check_origin(request)
 
     from chrona.api.authoring import authoring_routes
 
-    app.include_router(authoring_routes(agents, manager.journal))
+    app.include_router(authoring_routes(agents, manager.journal, check_origin))
 
     @app.post("/api/render/references", status_code=201)
     async def upload_reference(file: UploadFile = File(...)):
@@ -155,7 +147,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     @app.post("/api/render/jobs", status_code=202)
     def submit(data: VideoRequest, request: Request):
         if data.prompt_enhancement:
-            agents.access.require(request)
+            check_origin(request)
         try:
             return generation.submit(data)
         except FileNotFoundError as error:
@@ -179,7 +171,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     @app.post("/api/render/jobs/{identifier}/retry", status_code=202)
     def retry(identifier: uuid.UUID, request: Request):
         try:
-            require_enhancement_access(request, identifier)
+            check_enhancement_origin(request, identifier)
             return generation.resume(str(identifier))
         except KeyError as error:
             raise HTTPException(
@@ -191,7 +183,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     @app.post("/api/render/jobs/{identifier}/rebuild", status_code=202)
     def rebuild(identifier: uuid.UUID, request: Request):
         try:
-            require_enhancement_access(request, identifier)
+            check_enhancement_origin(request, identifier)
             return generation.resume(str(identifier), rebuild=True)
         except KeyError as error:
             raise HTTPException(

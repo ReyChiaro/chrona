@@ -6,7 +6,7 @@ from pydantic import ValidationError
 from chrona.adapters.prompt_enhancement.settings import EnhancementUpdate
 
 
-def enhancement_routes(service, access, journal):
+def enhancement_routes(service, check_origin, journal):
     router = APIRouter(prefix="/api/render/prompt-enhancement")
 
     def invalid(error):
@@ -20,20 +20,17 @@ def enhancement_routes(service, access, journal):
     @router.get("/status")
     def status(request: Request, response: Response):
         response.headers["Cache-Control"] = "no-store"
-        return {
-            **service.capabilities(),
-            "unlocked": access.authorized(request),
-        }
+        return service.capabilities()
 
     @router.get("")
     def settings(request: Request, response: Response):
-        access.require(request)
+        check_origin(request)
         response.headers["Cache-Control"] = "no-store"
         return service.store.snapshot().public()
 
     @router.put("")
     def configure(data: dict, request: Request, response: Response):
-        access.require(request)
+        check_origin(request)
         response.headers["Cache-Control"] = "no-store"
         try:
             value = service.store.save(EnhancementUpdate.model_validate(data))
@@ -50,7 +47,7 @@ def enhancement_routes(service, access, journal):
 
     @router.post("/test")
     def test(data: dict, request: Request, response: Response):
-        access.require(request)
+        check_origin(request)
         response.headers["Cache-Control"] = "no-store"
         try:
             config = service.store.prepare(

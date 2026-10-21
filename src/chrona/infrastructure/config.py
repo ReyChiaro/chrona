@@ -1,15 +1,15 @@
 from pathlib import Path
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from pydantic import SecretStr
+from pydantic import SecretStr, Field
 from .resources import resource
 
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
-        env_prefix="CHRONA_", env_file=".env", extra="ignore"
+        env_prefix="CHRONA_", env_file=".env", extra="ignore", populate_by_name=True
     )
-    data_dir: Path = Path(".data/render")
+    data_dir: Path = Field(default=Path(".data/render"), validation_alias="CHRONA_RENDER_DATA_DIR")
     provider: str = "chrona.adapters.providers.minimax:ReferenceRenderer"
     model_path: Path | None = None
     model_revision: str = ""
@@ -39,7 +39,6 @@ class Settings(BaseSettings):
     agent_max_rounds: int = 8
     agent_settings_path: Path | None = None
     agent_world_url: str = "http://127.0.0.1:4173"
-    agent_access_token: SecretStr = SecretStr("")
     agent_browser_origin: str = ""
     prompt_enhancement_enabled: bool = False
     prompt_enhancement_base_url: str = "https://api.minimax.cn"

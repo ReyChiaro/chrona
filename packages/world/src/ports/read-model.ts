@@ -34,6 +34,8 @@ export interface WorldReadModel {
   readonly name: string;
   readonly config: WorldConfig;
   readonly camera: CameraState;
+  /** Optional display pose at a monotonic time in milliseconds. Saves use camera. */
+  presentationCamera?(now: number): CameraState;
   readonly origin: { x: number; z: number };
   readonly events: import("../../../protocol/src/contracts").WorldEvent[];
   readonly trail: TrailPoint[];

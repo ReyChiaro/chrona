@@ -37,7 +37,7 @@ export default defineConfig({
       url: `${renderUrl}/api/render/health`,
       reuseExistingServer: false,
       env: {
-        CHRONA_DATA_DIR: `${dataRoot}/render`,
+        CHRONA_RENDER_DATA_DIR: `${dataRoot}/render`,
         CHRONA_PROVIDER: "chrona.adapters.providers.disabled:DisabledRenderer",
         CHRONA_PRELOAD: "false",
         CHRONA_AGENT_ENABLED: "false",

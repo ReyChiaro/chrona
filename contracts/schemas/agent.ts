@@ -3,7 +3,6 @@ export interface AgentStatus {
   mode: "api" | "disabled" | "unconfigured";
   model: string;
   configured: boolean;
-  unlocked: boolean;
   protocol: string;
 }
 export interface AgentConfiguration {

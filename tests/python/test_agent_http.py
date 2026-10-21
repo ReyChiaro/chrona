@@ -65,7 +65,6 @@ def test_model_http_tool_loop_uses_actual_node_validation_and_immutable_release(
                                 agent_base_url='', agent_model='', agent_settings_path=tmp_path / 'agent.json', agent_world_url=origin)
             app = create_app(settings)
             with TestClient(app) as client:
-                assert client.post('/api/render/content/agent/unlock', json={'accessToken': app.state.agents.access.owner_token}).status_code == 200
                 config = {'enabled': True, 'baseUrl': f'http://127.0.0.1:{upstream.server_port}/v1', 'model': 'simulated-test-model', 'apiKey': 'integration-test-only-key', 'maxRounds': 6, 'timeoutSeconds': 30}
                 assert client.put('/api/render/content/agent', json=config).status_code == 200
                 data = {'requestId': str(uuid.uuid4()), 'worldId': 'isolated-world', 'prompt': '新增一座苔石水井', 'referenceIds': ['a' * 64],

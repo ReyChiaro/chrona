@@ -7,7 +7,7 @@ for (const prompt of ['Natural materials', '']) {
     const identifier = '12345678-1234-4234-8234-123456789abc';
     let uploaded = false, submitted = false;
     await page.route('**/api/render/prompt-enhancement/status', route => route.fulfill({ json: {
-      configured: true, defaultEnabled: false, unlocked: true, label: 'MiniMax H3-Context-IR',
+      configured: true, defaultEnabled: false, label: 'MiniMax H3-Context-IR',
     } }));
     let resultVideo: Buffer;
     await page.route('**/api/render/capabilities', route => route.fulfill({ json: {

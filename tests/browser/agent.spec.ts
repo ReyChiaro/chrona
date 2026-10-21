@@ -1,16 +1,12 @@
 import { test, expect } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
 
-test('configure and unlock an API agent, create an object, preserve undo and keep credentials out of browser storage', async ({ page, request }) => {
+test('configure an API agent without a server token, create an object, preserve undo and keep credentials out of browser storage', async ({ page, request }) => {
   const recipe = JSON.parse(await readFile(new URL('../fixtures/stone-well.json', import.meta.url), 'utf8')); recipe.version = `1.0.${Date.now()}`;
-  let unlocked = false, receivedKey = '', api = false;
+  let receivedKey = '', api = false;
   const configuration = { enabled: false, baseUrl: '', model: '', hasApiKey: false, timeoutSeconds: 180, maxRounds: 8, configured: false, mode: 'disabled', protocol: 'chat-completions' };
-  await page.route('**/api/content/agent/status', route => route.fulfill({ json: { mode: api ? 'api' : 'disabled', model: api ? configuration.model : '', configured: api, unlocked, protocol: 'chat-completions' } }));
-  await page.route('**/api/content/agent/unlock', route => {
-    expect(route.request().postDataJSON().accessToken).toBe('test-owner-token'); unlocked = true; return route.fulfill({ json: { unlocked } });
-  });
+  await page.route('**/api/content/agent/status', route => route.fulfill({ json: { mode: api ? 'api' : 'disabled', model: api ? configuration.model : '', configured: api, protocol: 'chat-completions' } }));
   await page.route('**/api/content/agent', route => {
-    if (!unlocked) return route.fulfill({ status: 401, json: { error: '需要解锁' } });
     if (route.request().method() === 'PUT') {
       const body = route.request().postDataJSON(); receivedKey = body.apiKey || receivedKey;
       Object.assign(configuration, { ...body, hasApiKey: Boolean(receivedKey), configured: Boolean(body.baseUrl && body.model), mode: body.enabled ? 'api' : 'disabled' });
@@ -28,18 +24,22 @@ test('configure and unlock an API agent, create an object, preserve undo and kee
     return route.fulfill({ json: { mode: 'api', model: 'test-code-model', trace: [{ tool: 'write_plugin', status: 'ok' }], release: await release.json(),
       plan: { requestId: body.requestId, worldId: body.worldId, action: 'create', label: '新增苔石水井', point: body.selection.point, asset: 'well', constraint: 'mossy stone well', referenceIds: [] } } });
   });
+  const accessRequests: string[] = [];
+  page.on('request', request => { if (/\/agent\/(?:unlock|lock)$/.test(new URL(request.url()).pathname)) accessRequests.push(request.url()); });
   await page.goto('/'); await page.waitForFunction(() => window.chrona?.ready);
   await page.locator('#composer-toggle').click(); await page.locator('#composer-agent-settings').click();
-  await expect(page.locator('#agent-unlock-form')).toBeVisible();
-  await page.locator('#agent-access-token').fill('test-owner-token'); await page.locator('#agent-unlock-form button').click();
+  await expect(page.locator('#agent-unlock-form')).toHaveCount(0);
+  await expect(page.locator('#agent-access-token')).toHaveCount(0);
+  await expect(page.locator('#agent-lock')).toHaveCount(0);
+  await expect(page.locator('#agent-settings')).not.toContainText('chrona.authoring.agents.access');
   await expect(page.locator('#agent-settings-form')).toBeVisible();
+  await page.screenshot({ path: 'test-results/agent-settings-no-token.png', fullPage: true });
   await page.locator('#agent-enabled').check(); await page.locator('#agent-base-url').fill('https://provider.example/v1');
   await page.locator('#agent-model').fill('test-code-model'); await page.locator('#agent-api-key').fill('test-provider-secret');
   await page.locator('#agent-test').click(); await expect(page.locator('#agent-settings-status')).toContainText('工具调用可用');
   await page.locator('#agent-save').click(); await expect(page.locator('#agent-settings-status')).toContainText('已启用代码模型');
   expect(receivedKey).toBe('test-provider-secret'); await expect(page.locator('#agent-api-key')).toHaveValue('');
   expect(await page.evaluate(async () => JSON.stringify({ ...localStorage }))).not.toContain('test-provider-secret');
-  expect(await page.evaluate(async () => JSON.stringify({ ...localStorage }))).not.toContain('test-owner-token');
   await page.keyboard.press('Escape'); await expect(page.locator('#agent-settings')).not.toBeVisible();
   await expect(page.locator('#composer-prompt')).toBeFocused(); await expect(page.locator('#composer-agent-mode')).toContainText('test-code-model');
   await page.evaluate(async () => {
@@ -63,6 +63,7 @@ test('configure and unlock an API agent, create an object, preserve undo and kee
   await page.locator('#composer-agent-settings').click(); await page.locator('#agent-enabled').uncheck(); await page.locator('#agent-save').click();
   await expect(page.locator('#agent-settings-status')).toContainText('已停用');
   await page.keyboard.press('Escape'); await expect(page.locator('#composer-agent-mode')).toContainText('请配置代码模型');
+  expect(accessRequests).toEqual([]);
   await page.setViewportSize({ width: 390, height: 844 });
   await page.locator('#composer-agent-settings').click(); await expect(page.locator('#agent-settings-form')).toBeVisible();
   expect(await page.locator('#agent-settings').evaluate(dialog => dialog.scrollWidth <= dialog.clientWidth)).toBe(true);

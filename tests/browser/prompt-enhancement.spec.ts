@@ -1,17 +1,12 @@
 import { test, expect } from '@playwright/test';
 
 test('configure official enhancement, keep credentials private, and choose the per-video switch', async ({ page }) => {
-  let unlocked = false, savedKey = '';
+  let savedKey = '';
   const config = { enabled: false, baseUrl: 'https://api.minimax.cn', model: 'MiniMax-H3', hasApiKey: false, timeoutSeconds: 300, pollSeconds: 3 };
   await page.route('**/api/render/prompt-enhancement/status', route => route.fulfill({ json: {
-    configured: Boolean(savedKey), defaultEnabled: config.enabled, unlocked, label: 'MiniMax H3-Context-IR',
+    configured: Boolean(savedKey), defaultEnabled: config.enabled, label: 'MiniMax H3-Context-IR',
   } }));
-  await page.route('**/api/content/agent/unlock', route => {
-    expect(route.request().postDataJSON().accessToken).toBe('owner-test-token'); unlocked = true;
-    return route.fulfill({ json: { unlocked } });
-  });
   await page.route('**/api/render/prompt-enhancement', route => {
-    expect(unlocked).toBe(true);
     if (route.request().method() === 'PUT') {
       const value = route.request().postDataJSON(); savedKey = value.apiKey || savedKey;
       Object.assign(config, { enabled: value.enabled, baseUrl: value.baseUrl, model: value.model, hasApiKey: Boolean(savedKey),
@@ -27,11 +22,9 @@ test('configure official enhancement, keep credentials private, and choose the p
   await page.locator('#video-settings-toggle').click();
   await expect(page.locator('#prompt-enhancement-enabled')).toBeDisabled();
   await page.locator('#enhancement-settings summary').first().click();
-  await expect(page.locator('#enhancement-unlock-form')).toBeVisible();
-  await page.locator('#enhancement-access-token').fill('owner-test-token');
-  await page.locator('#enhancement-unlock-form button').click();
+  await expect(page.locator('#enhancement-unlock-form')).toHaveCount(0);
+  await expect(page.locator('#enhancement-access-token')).toHaveCount(0);
   await expect(page.locator('#enhancement-settings-form')).toBeVisible();
-  await expect(page.locator('#enhancement-access-token')).toHaveValue('');
   await page.locator('#enhancement-api-key').fill('minimax-test-secret');
   await page.locator('#enhancement-default').check();
   await page.locator('#enhancement-test').click();
@@ -45,7 +38,7 @@ test('configure official enhancement, keep credentials private, and choose the p
   await expect(page.locator('#prompt-enhancement-enabled')).toBeEnabled();
   await page.locator('#prompt-enhancement-enabled').check();
   const storage = await page.evaluate(async () => JSON.stringify({ local: { ...localStorage }, session: { ...sessionStorage } }));
-  expect(storage).not.toContain('minimax-test-secret'); expect(storage).not.toContain('owner-test-token');
+  expect(storage).not.toContain('minimax-test-secret');
   await page.reload(); await page.waitForFunction(() => window.chrona?.ready);
   await page.locator('#video-settings-toggle').click();
   await expect(page.locator('#prompt-enhancement-enabled')).toBeChecked();

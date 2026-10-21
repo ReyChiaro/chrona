@@ -9,7 +9,7 @@ import type {
 } from "../../../packages/protocol/src/agent";
 import { jsonBody, requestJson } from "./api";
 
-/** Owner unlock is separate from provider credentials; neither is saved by the browser. */
+/** Provider credentials are stored on the server and cleared from the form after saving. */
 export class AgentSettingsPanel {
   private dialog = document.createElement("dialog");
   private value?: AgentConfiguration;
@@ -30,33 +30,26 @@ export class AgentSettingsPanel {
     );
     this.dialog.innerHTML = `<div class="dialog-heading"><h2><span data-i18n="ui.agent-settings.code-agent">${escapeHtml(t("ui.agent-settings.code-agent"))}</span></h2><button id="agent-settings-close" class="icon-button" aria-label="${escapeHtml(t("ui.agent-settings.close-agent-settings"))}" data-i18n-aria-label="ui.agent-settings.close-agent-settings">×</button></div>
       <p class="agent-note"><span data-i18n="ui.agent-settings.connect-a-chat-completions-api-with-tool-calling-to">${escapeHtml(t("ui.agent-settings.connect-a-chat-completions-api-with-tool-calling-to"))}</span></p>
-      <form id="agent-unlock-form" hidden><label><span data-i18n="ui.agent-settings.server-access-token">${escapeHtml(t("ui.agent-settings.server-access-token"))}</span><input id="agent-access-token" type="password" autocomplete="off" maxlength="512" required/></label><p class="agent-note"><span data-i18n="ui.agent-settings.unlock-settings-before-configuring-the-service-in-the-server">${escapeHtml(t("ui.agent-settings.unlock-settings-before-configuring-the-service-in-the-server"))}</span> <code>uv run python -m chrona.authoring.agents.access</code> <span data-i18n="ui.agent-settings.to-obtain-the-access-token-this-is-separate-from">${escapeHtml(t("ui.agent-settings.to-obtain-the-access-token-this-is-separate-from"))}</span></p><button class="button primary" type="submit"><span data-i18n="ui.agent-settings.unlock-settings">${escapeHtml(t("ui.agent-settings.unlock-settings"))}</span></button></form>
-      <form id="agent-settings-form" hidden><label class="agent-check"><input id="agent-enabled" type="checkbox"/><span data-i18n="ui.agent-settings.use-a-code-model-api">${escapeHtml(t("ui.agent-settings.use-a-code-model-api"))}</span></label>
+      <form id="agent-settings-form"><label class="agent-check"><input id="agent-enabled" type="checkbox"/><span data-i18n="ui.agent-settings.use-a-code-model-api">${escapeHtml(t("ui.agent-settings.use-a-code-model-api"))}</span></label>
       <label><span data-i18n="ui.agent-settings.api-url">${escapeHtml(t("ui.agent-settings.api-url"))}</span><input id="agent-base-url" type="url" placeholder="https://your-provider.example/v1" maxlength="2000" spellcheck="false"/></label>
       <label><span data-i18n="ui.agent-settings.model-name">${escapeHtml(t("ui.agent-settings.model-name"))}</span><input id="agent-model" type="text" placeholder="${escapeHtml(t("ui.agent-settings.enter-the-provider-s-model-id"))}" maxlength="200" autocomplete="off" spellcheck="false" data-i18n-placeholder="ui.agent-settings.enter-the-provider-s-model-id"/></label>
       <label><span data-i18n="ui.agent-settings.api-key">${escapeHtml(t("ui.agent-settings.api-key"))}</span><input id="agent-api-key" type="password" autocomplete="off" maxlength="4096" placeholder="${escapeHtml(t("ui.agent-settings.leave-blank-to-keep-the-saved-key-optional-for"))}" data-i18n-placeholder="ui.agent-settings.leave-blank-to-keep-the-saved-key-optional-for"/></label><p id="agent-key-state" class="agent-note"></p>
       <label class="agent-check"><input id="agent-clear-key" type="checkbox"/><span data-i18n="ui.agent-settings.clear-the-saved-api-key">${escapeHtml(t("ui.agent-settings.clear-the-saved-api-key"))}</span></label>
       <div class="agent-limits"><label><span data-i18n="ui.agent-settings.total-timeout-seconds">${escapeHtml(t("ui.agent-settings.total-timeout-seconds"))}</span><input id="agent-timeout" type="number" min="15" max="300" value="180" required/></label><label><span data-i18n="ui.agent-settings.maximum-tool-rounds">${escapeHtml(t("ui.agent-settings.maximum-tool-rounds"))}</span><input id="agent-rounds" type="number" min="2" max="16" value="8" required/></label></div>
       <p class="agent-note"><span data-i18n="ui.agent-settings.keys-are-stored-only-on-the-server-testing-makes">${escapeHtml(t("ui.agent-settings.keys-are-stored-only-on-the-server-testing-makes"))}</span></p>
-      <div class="agent-buttons"><button type="submit" id="agent-save" class="button primary"><span data-i18n="ui.agent-settings.save-settings">${escapeHtml(t("ui.agent-settings.save-settings"))}</span></button><button type="button" id="agent-test" class="button"><span data-i18n="ui.agent-settings.test-connection">${escapeHtml(t("ui.agent-settings.test-connection"))}</span></button><button type="button" id="agent-lock" class="text-button"><span data-i18n="ui.agent-settings.lock">${escapeHtml(t("ui.agent-settings.lock"))}</span></button></div></form>
+      <div class="agent-buttons"><button type="submit" id="agent-save" class="button primary"><span data-i18n="ui.agent-settings.save-settings">${escapeHtml(t("ui.agent-settings.save-settings"))}</span></button><button type="button" id="agent-test" class="button"><span data-i18n="ui.agent-settings.test-connection">${escapeHtml(t("ui.agent-settings.test-connection"))}</span></button></div></form>
       <p id="agent-settings-status" role="status" class="agent-note"></p>`;
     document.body.append(this.dialog);
     this.at("agent-settings-close").onclick = () => this.close();
     this.dialog.onclose = () => {
-      this.at<HTMLInputElement>("agent-access-token").value = "";
       this.at<HTMLInputElement>("agent-api-key").value = "";
       this.afterClose();
-    };
-    this.at("agent-unlock-form").onsubmit = (e) => {
-      e.preventDefault();
-      void this.unlock();
     };
     this.at("agent-settings-form").onsubmit = (e) => {
       e.preventDefault();
       void this.save();
     };
     this.at("agent-test").onclick = () => void this.test();
-    this.at("agent-lock").onclick = () => void this.lock();
     void this.refresh().catch(() => undefined);
   }
   async refresh(): Promise<AgentStatus> {
@@ -85,17 +78,7 @@ export class AgentSettingsPanel {
     node.classList.toggle("error", error);
   }
   private async load(): Promise<void> {
-    const status = await this.refresh();
-    this.at("agent-unlock-form").hidden = status.unlocked;
-    this.at("agent-settings-form").hidden = !status.unlocked;
-    if (!status.unlocked) {
-      this.value = undefined;
-      this.status(
-        t("ui.agent-settings.unlock-to-configure-the-api-and-use-a-code"),
-      );
-      this.at("agent-access-token").focus();
-      return;
-    }
+    await this.refresh();
     this.value = await requestJson<AgentConfiguration>("/api/content/agent");
     this.fill(this.value);
     this.status(
@@ -150,18 +133,6 @@ export class AgentSettingsPanel {
         .forEach((b) => (b.disabled = false));
     }
   }
-  private async unlock(): Promise<void> {
-    await this.action(async () => {
-      await requestJson(
-        "/api/content/agent/unlock",
-        jsonBody({
-          accessToken: this.at<HTMLInputElement>("agent-access-token").value,
-        }),
-      );
-      this.at<HTMLInputElement>("agent-access-token").value = "";
-      await this.load();
-    });
-  }
   private async save(): Promise<void> {
     await this.action(async () => {
       this.value = await requestJson<AgentConfiguration>("/api/content/agent", {
@@ -194,12 +165,6 @@ export class AgentSettingsPanel {
           { p0: result.model, p1: result.latencyMs },
         ),
       );
-    });
-  }
-  private async lock(): Promise<void> {
-    await this.action(async () => {
-      await requestJson("/api/content/agent/lock", jsonBody({}));
-      await this.load();
     });
   }
 }

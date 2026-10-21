@@ -22,7 +22,9 @@ test('a fresh visitor gets English throughout the workspace and dialogs', async 
   await page.locator('#render-dialog-close').click();
   await page.locator('#composer-toggle').click();
   await page.locator('#composer-agent-settings').click();
-  await expect(page.locator('#agent-settings')).toContainText('Server access token');
+  await expect(page.locator('#agent-settings-form')).toBeVisible();
+  await expect(page.locator('#agent-settings')).toContainText('API key');
+  await expect(page.locator('#agent-settings')).not.toContainText('Server access token');
   await page.locator('#agent-settings-close').click(); await page.locator('#composer-close').click();
   const hardcoded = await page.evaluate(() => {
     const root = document.querySelector('#app')!.cloneNode(true) as HTMLElement;

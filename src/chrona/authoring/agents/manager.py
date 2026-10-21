@@ -8,7 +8,6 @@ from collections import OrderedDict
 
 from chrona.authoring.agents.scene import run_scene_agent
 from chrona.authoring.agents.settings import AgentConfig, AgentConfigStore
-from chrona.authoring.agents.access import AgentAccess
 
 
 class SceneAgentManager:
@@ -26,11 +25,6 @@ class SceneAgentManager:
             or settings.data_dir / "agent" / "settings.json"
         )
         self.store = AgentConfigStore(path, initial)
-        self.access = AgentAccess(
-            settings.data_dir / "agent" / "access.token",
-            settings.agent_access_token.get_secret_value(),
-            settings.agent_browser_origin or settings.agent_world_url,
-        )
         self.world_url, self.journal = settings.agent_world_url, journal
         self.runs, self.lock = OrderedDict(), threading.RLock()
         self.slots = threading.BoundedSemaphore(2)
@@ -47,7 +41,7 @@ class SceneAgentManager:
                 }
             )
 
-    def run(self, data, *, authorized=False):
+    def run(self, data):
         identifier = str(uuid.UUID(data["requestId"]))
         if (
             not isinstance(data.get("prompt"), str)
@@ -73,12 +67,6 @@ class SceneAgentManager:
                             "backend.authoring.agents.manager.this-edit-request-is-already-running"
                         )
                     )
-                if old and old["mode"] == "api" and not authorized:
-                    raise PermissionError(
-                        msg(
-                            "backend.authoring.agents.manager.unlock-the-code-agent-first"
-                        )
-                    )
                 if old and old.get("result"):
                     return copy.deepcopy(old["result"])
                 config = self.store.snapshot()
@@ -86,12 +74,6 @@ class SceneAgentManager:
                     raise ValueError(
                         msg(
                             "backend.authoring.agents.manager.configure-and-enable-the-code-model"
-                        )
-                    )
-                if config.mode == "api" and not authorized:
-                    raise PermissionError(
-                        msg(
-                            "backend.authoring.agents.manager.unlock-the-code-agent-first"
                         )
                     )
                 self.runs[identifier] = {

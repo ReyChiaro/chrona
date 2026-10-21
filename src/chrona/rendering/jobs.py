@@ -36,7 +36,6 @@ class RenderWorkspace:
                 mode="json",
                 exclude={
                     "agent_api_key",
-                    "agent_access_token",
                     "agent_base_url",
                 },
             ),

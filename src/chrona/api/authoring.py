@@ -2,17 +2,17 @@ from chrona.infrastructure.i18n import error_message
 from chrona.infrastructure.i18n import LocalizedJSONResponse, install_i18n
 from chrona.infrastructure.i18n import msg
 import uuid
-from fastapi import APIRouter, FastAPI, HTTPException, Request, Response
+from fastapi import APIRouter, FastAPI, HTTPException, Request
 from pydantic import ValidationError
 from chrona.infrastructure.config import Settings
 from chrona.infrastructure.events import EventJournal
 from chrona.authoring.agents.manager import SceneAgentManager
 from chrona.authoring.agents.settings import AgentUpdate
 from chrona.authoring.agents.client import test_connection
-from chrona.authoring.agents.access import COOKIE, SESSION_SECONDS
+from chrona.infrastructure.browser_origin import BrowserOriginGuard
 
 
-def authoring_routes(agents, journal):
+def authoring_routes(agents, journal, check_origin):
     app = APIRouter()
 
     def config_error(error):
@@ -23,44 +23,23 @@ def authoring_routes(agents, journal):
         )
 
     @app.get("/api/render/content/agent/status")
-    def agent_status(request: Request):
+    def agent_status():
         value = agents.store.snapshot()
         return {
             "mode": value.mode,
             "model": value.model if value.mode == "api" else "",
             "configured": value.configured,
-            "unlocked": agents.access.authorized(request),
             "protocol": "chat-completions",
         }
 
-    @app.post("/api/render/content/agent/unlock")
-    def agent_unlock(data: dict, response: Response, request: Request):
-        agents.access.check_origin(request)
-        session = agents.access.unlock(data.get("accessToken"))
-        response.set_cookie(
-            COOKIE,
-            session,
-            max_age=SESSION_SECONDS,
-            httponly=True,
-            samesite="strict",
-            path="/api/",
-        )
-        return {"unlocked": True}
-
-    @app.post("/api/render/content/agent/lock")
-    def agent_lock(response: Response, request: Request):
-        agents.access.check_origin(request)
-        response.delete_cookie(COOKIE, path="/api/")
-        return {"unlocked": False}
-
     @app.get("/api/render/content/agent")
     def agent_settings(request: Request):
-        agents.access.require(request)
+        check_origin(request)
         return agents.store.snapshot().public()
 
     @app.put("/api/render/content/agent")
     def agent_configure(data: dict, request: Request):
-        agents.access.require(request)
+        check_origin(request)
         try:
             value = agents.store.save(AgentUpdate.model_validate(data))
             journal.emit(
@@ -76,7 +55,7 @@ def authoring_routes(agents, journal):
 
     @app.post("/api/render/content/agent/test")
     def agent_test(data: dict, request: Request):
-        agents.access.require(request)
+        check_origin(request)
         config = None
         try:
             config = agents.store.prepare(AgentUpdate.model_validate(data))
@@ -114,8 +93,7 @@ def authoring_routes(agents, journal):
     def agent_progress(identifier: uuid.UUID, request: Request):
         try:
             status = agents.status(str(identifier))
-            if status["mode"] == "api":
-                agents.access.require(request)
+            check_origin(request)
             return status
         except KeyError as error:
             raise HTTPException(
@@ -128,12 +106,8 @@ def authoring_routes(agents, journal):
     @app.post("/api/render/content/edit")
     def content_edit(data: dict, request: Request):
         try:
-            agents.access.check_origin(request)
-            if agents.store.snapshot().mode == "api":
-                agents.access.require(request)
-            result = agents.run(
-                data, authorized=agents.access.authorized(request)
-            )
+            check_origin(request)
+            result = agents.run(data)
             journal.emit(
                 "content.edit.planned",
                 msg("backend.api.authoring.scene-edit-planning-complete"),
@@ -142,8 +116,6 @@ def authoring_routes(agents, journal):
                 plan=result.get("plan"),
             )
             return result
-        except PermissionError as error:
-            raise HTTPException(401, error_message(error)) from error
         except (ValueError, KeyError, TypeError) as error:
             raise HTTPException(400, error_message(error)) from error
 
@@ -159,7 +131,10 @@ def create_app(settings: Settings | None = None):
     )
     install_i18n(app)
     app.state.agents = agents
-    app.include_router(authoring_routes(agents, journal))
+    check_origin = BrowserOriginGuard(
+        settings.agent_browser_origin or settings.agent_world_url
+    )
+    app.include_router(authoring_routes(agents, journal, check_origin))
 
     @app.get("/api/authoring/health")
     def health():

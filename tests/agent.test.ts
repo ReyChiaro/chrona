@@ -7,7 +7,7 @@ import { join } from 'node:path';
 import { startServer } from '../apps/api/src/index';
 import { DEFAULT_CONFIG } from '../packages/protocol/src/config';
 
-test('API edits reuse real compile/publish contracts, bind host identity, and forward owner sessions without exposing them', async () => {
+test('API edits reuse real compile/publish contracts, bind host identity, without requiring server access tokens', async () => {
   const root = await mkdtemp(join(tmpdir(), 'agent-contract-'));
   const previous = { content: process.env.CONTENT_DATA_DIR, service: process.env.RENDER_SERVICE_URL };
   const recipe = JSON.parse(await readFile(new URL('./fixtures/stone-well.json', import.meta.url), 'utf8'));
@@ -17,11 +17,8 @@ test('API edits reuse real compile/publish contracts, bind host identity, and fo
     const chunks = []; for await (const chunk of req) chunks.push(chunk);
     const data = chunks.length ? JSON.parse(Buffer.concat(chunks).toString()) : {};
     res.setHeader('Content-Type', 'application/json');
-    if (req.url === '/api/render/content/agent/unlock') {
-      assert.equal(data.accessToken, 'test-owner-secret'); res.setHeader('Set-Cookie', 'chrona_agent_session=test-session; HttpOnly; SameSite=Strict; Path=/api/');
-      res.end(JSON.stringify({ unlocked: true })); return;
-    }
-    assert.equal(req.headers.cookie, 'chrona_agent_session=test-session');
+    assert.equal(req.headers.cookie, undefined);
+    assert.equal(req.headers.authorization, undefined);
     if (req.url !== '/api/render/content/edit') { res.end(JSON.stringify({ mode: 'api', hasApiKey: true })); return; }
     calls++;
     const protocol = await (await fetch(`${origin}/api/content/protocol`)).json(); assert.ok(protocol.editPlanSchema && protocol.sdk);
@@ -37,9 +34,9 @@ test('API edits reuse real compile/publish contracts, bind host identity, and fo
   const app = await startServer({ port: 0, host: '127.0.0.1', frontend: false, dataDirectory: join(root, 'worlds') });
   const web = app.server.address(); assert.ok(web && typeof web !== 'string'); origin = `http://127.0.0.1:${web.port}`;
   try {
-    const unlocked = await fetch(`${origin}/api/content/agent/unlock`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ accessToken: 'test-owner-secret' }) });
-    assert.match(unlocked.headers.get('set-cookie')!, /HttpOnly/);
-    const headers = { 'Content-Type': 'application/json', Cookie: 'chrona_agent_session=test-session' };
+    const headers = { 'Content-Type': 'application/json' };
+    assert.equal((await fetch(`${origin}/api/content/agent/unlock`, { method: 'POST', headers, body: '{}' })).status, 404);
+    assert.equal((await fetch(`${origin}/api/content/agent/lock`, { method: 'POST', headers, body: '{}' })).status, 404);
     const config = await fetch(`${origin}/api/content/agent`, { headers }); assert.equal((await config.json()).mode, 'api');
     const data = { requestId: crypto.randomUUID(), worldId: crypto.randomUUID(), prompt: '新增一座苔石水井', selection: { kind: 'ground', label: '地面', point: { x: 8, y: 2, z: -5 } },
       camera: { x: 8, y: 4, z: 1, yaw: 0, pitch: 0 }, referenceIds: ['a'.repeat(64)], context: {}, history: [], config: DEFAULT_CONFIG };

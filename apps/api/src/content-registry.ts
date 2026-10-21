@@ -300,8 +300,6 @@ export async function contentRoutes(
           headers: {
             "Content-Type": "application/json",
             "Accept-Language": req.headers["accept-language"] ?? "en",
-            Cookie: req.headers.cookie ?? "",
-            Authorization: req.headers.authorization ?? "",
           },
           body: JSON.stringify(request),
           signal: AbortSignal.timeout(330000),

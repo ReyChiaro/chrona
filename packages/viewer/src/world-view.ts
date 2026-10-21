@@ -34,6 +34,8 @@ export class WorldView {
     this.overview.fitAll = value;
   }
   private visuals = new Map<string, ChunkVisual>();
+  private pendingVisuals = new Map<string, import("../../world/src/generator").ChunkData>();
+  private chunkBuilds = 0;
   private assets = new Map<
     string,
     {
@@ -95,6 +97,7 @@ export class WorldView {
       this.sync(change.added, change.removed),
     );
     this.sync([...runtime.chunks.active.values()], []);
+    this.flushChunks(Infinity, Infinity);
     this.overview = new ExploredOverview(runtime, globalCanvas);
     this.resizeObserver = new ResizeObserver(() => this.resize());
     this.resizeObserver.observe(globalCanvas.parentElement!);
@@ -128,21 +131,16 @@ export class WorldView {
     removed: string[],
   ): void {
     for (const key of removed) {
+      this.pendingVisuals.delete(key);
       const visual = this.visuals.get(key);
       if (visual) disposeGroup(visual.group);
       this.visuals.delete(key);
     }
-    const now = performance.now() / 1000;
     for (const data of added) {
-      const previous = this.visuals.get(data.key);
-      if (previous) disposeGroup(previous.group);
-      const visual = createChunkVisual(data, this.runtime.config, now);
-      for (const material of visual.materials)
-        if (material instanceof THREE.LineBasicMaterial)
-          material.opacity = 0.24;
-      this.visuals.set(data.key, visual);
-      this.scene.add(visual.group);
+      if (this.visuals.get(data.key)?.data.fingerprint !== data.fingerprint)
+        this.pendingVisuals.set(data.key, data);
     }
+    const now = performance.now() / 1000;
     const active = this.runtime.chunks.assets;
     for (const [id, visual] of this.assets) {
       if (
@@ -171,12 +169,30 @@ export class WorldView {
     }
   }
 
+  private flushChunks(limit = 1, budgetMs = 3): void {
+    const started = performance.now();
+    let built = 0;
+    for (const [key, data] of this.pendingVisuals) {
+      if (built >= limit || (built > 0 && performance.now() - started >= budgetMs)) break;
+      this.pendingVisuals.delete(key);
+      const previous = this.visuals.get(key);
+      if (previous) disposeGroup(previous.group);
+      const visual = createChunkVisual(data, this.runtime.config, performance.now() / 1000);
+      for (const material of visual.materials)
+        if (material instanceof THREE.LineBasicMaterial) material.opacity = 0.24;
+      this.visuals.set(key, visual);
+      this.scene.add(visual.group);
+      this.chunkBuilds++;
+      built++;
+    }
+  }
+
   resetOverview(): void {
     this.overview.reset();
   }
 
   overviewStats() {
-    return this.overview.stats();
+    return { ...this.overview.stats(), chunkBuilds: this.chunkBuilds, pendingVisuals: this.pendingVisuals.size };
   }
 
   resize(): void {
@@ -192,12 +208,14 @@ export class WorldView {
 
   render(now: number): void {
     this.renderedAt = now;
+    this.flushChunks();
     const runtime = this.runtime,
-      origin = runtime.origin;
+      origin = runtime.origin,
+      camera = runtime.presentationCamera?.(now * 1000) ?? runtime.camera;
     const position = new THREE.Vector3(
-      runtime.camera.x - origin.x,
-      runtime.camera.y,
-      runtime.camera.z - origin.z,
+      camera.x - origin.x,
+      camera.y,
+      camera.z - origin.z,
     );
     const day = Math.max(
       0,
@@ -255,8 +273,8 @@ export class WorldView {
     this.firstCamera.updateProjectionMatrix();
     this.firstCamera.position.copy(position);
     this.firstCamera.rotation.set(
-      runtime.camera.pitch,
-      runtime.camera.yaw,
+      camera.pitch,
+      camera.yaw,
       0,
       "YXZ",
     );
@@ -383,6 +401,7 @@ export class WorldView {
   recordingObservation(): Observation {
     const observation = this.runtime.observation();
     const { renderer, camera } = this.recording!;
+    observation.camera = this.displayedCamera(camera);
     observation.viewport = {
       width: renderer.domElement.width,
       height: renderer.domElement.height,
@@ -484,6 +503,7 @@ export class WorldView {
 
   observation(): Observation {
     const observation = this.runtime.observation();
+    observation.camera = this.displayedCamera(this.firstCamera);
     observation.viewport = {
       width: this.firstRenderer.domElement.width,
       height: this.firstRenderer.domElement.height,
@@ -493,7 +513,18 @@ export class WorldView {
     return observation;
   }
 
+  private displayedCamera(camera: THREE.PerspectiveCamera) {
+    return {
+      x: camera.position.x + this.runtime.origin.x,
+      y: camera.position.y,
+      z: camera.position.z + this.runtime.origin.z,
+      yaw: camera.rotation.y,
+      pitch: camera.rotation.x,
+    };
+  }
+
   capture(): { observation: Observation; image: string } {
+    this.flushChunks(Infinity, Infinity);
     this.render(this.renderedAt ?? performance.now() / 1000);
     this.firstCamera.layers.disable(1);
     this.firstRenderer.render(this.scene, this.firstCamera);
@@ -503,6 +534,7 @@ export class WorldView {
   }
 
   dispose(): void {
+    this.pendingVisuals.clear();
     this.endRecording();
     this.unsubscribe();
     this.resizeObserver.disconnect();

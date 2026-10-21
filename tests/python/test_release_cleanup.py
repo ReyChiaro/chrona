@@ -16,3 +16,13 @@ def test_unconfigured_agent_has_no_offline_execution(tmp_path, enabled, mode):
         assert 'Configure and enable the code model' in response.text
         assert client.post('/api/render/content/propose', json={'prompt': 'Create a tree'}).status_code == 404
     assert not app.state.agents.runs
+
+
+def test_project_and_render_data_directories_are_independent(tmp_path, monkeypatch):
+    project = tmp_path / "project-data"
+    render = tmp_path / "render-data"
+    explicit = tmp_path / "explicit-render"
+    monkeypatch.setenv("CHRONA_DATA_DIR", str(project))
+    monkeypatch.setenv("CHRONA_RENDER_DATA_DIR", str(render))
+    assert Settings(_env_file=None).data_dir == render
+    assert Settings(_env_file=None, data_dir=explicit).data_dir == explicit

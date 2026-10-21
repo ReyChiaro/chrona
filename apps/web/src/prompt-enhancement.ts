@@ -5,7 +5,6 @@ import { jsonBody, requestJson } from "./api";
 interface EnhancementStatus {
   configured: boolean;
   defaultEnabled: boolean;
-  unlocked: boolean;
   label: string;
 }
 interface EnhancementConfiguration {
@@ -30,8 +29,7 @@ export class PromptEnhancementPanel {
     this.root.innerHTML = `<div class="enhancement-toggle"><label class="agent-check"><input id="prompt-enhancement-enabled" type="checkbox" disabled/><span data-i18n="ui.prompt-enhancement.enhance-the-prompt-before-generation">${escapeHtml(t("ui.prompt-enhancement.enhance-the-prompt-before-generation"))}</span></label><span id="enhancement-connection" class="render-note"><span data-i18n="ui.prompt-enhancement.loading-service-settings">${escapeHtml(t("ui.prompt-enhancement.loading-service-settings"))}</span></span></div>
       <details id="enhancement-settings" class="enhancement-settings"><summary><span data-i18n="ui.prompt-enhancement.prompt-enhancement-settings">${escapeHtml(t("ui.prompt-enhancement.prompt-enhancement-settings"))}</span></summary>
       <p class="render-note"><span data-i18n="ui.prompt-enhancement.minimax-h3-context-ir-reads-this-low-poly-video">${escapeHtml(t("ui.prompt-enhancement.minimax-h3-context-ir-reads-this-low-poly-video"))}</span></p>
-      <form id="enhancement-unlock-form" hidden><label><span data-i18n="ui.agent-settings.server-access-token">${escapeHtml(t("ui.agent-settings.server-access-token"))}</span><input id="enhancement-access-token" type="password" autocomplete="off" maxlength="512" required/></label><p class="render-note"><span data-i18n="ui.prompt-enhancement.use-the-code-agent-server-access-token-you-do">${escapeHtml(t("ui.prompt-enhancement.use-the-code-agent-server-access-token-you-do"))}</span> <code>uv run python -m chrona.authoring.agents.access</code> <span data-i18n="ui.prompt-enhancement.to-obtain-the-token">${escapeHtml(t("ui.prompt-enhancement.to-obtain-the-token"))}</span></p><button class="button" type="submit"><span data-i18n="ui.agent-settings.unlock-settings">${escapeHtml(t("ui.agent-settings.unlock-settings"))}</span></button></form>
-      <form id="enhancement-settings-form" hidden>
+      <form id="enhancement-settings-form">
       <label><span data-i18n="ui.agent-settings.api-url">${escapeHtml(t("ui.agent-settings.api-url"))}</span><input id="enhancement-base-url" type="url" maxlength="2000" required spellcheck="false"/></label>
       <p class="render-note"><span data-i18n="ui.prompt-enhancement.china-https-api-minimax-cn-international-https-api-minimax">${escapeHtml(t("ui.prompt-enhancement.china-https-api-minimax-cn-international-https-api-minimax"))}</span></p>
       <label><span data-i18n="ui.prompt-enhancement.enhancement-model">${escapeHtml(t("ui.prompt-enhancement.enhancement-model"))}</span><input id="enhancement-model" maxlength="200" required spellcheck="false"/></label>
@@ -52,20 +50,6 @@ export class PromptEnhancementPanel {
           void this.load().catch((error) => this.status(error.message, true));
       },
     );
-    this.at("enhancement-unlock-form").onsubmit = (event) => {
-      event.preventDefault();
-      void this.action(async () => {
-        await requestJson(
-          "/api/content/agent/unlock",
-          jsonBody({
-            accessToken: this.at<HTMLInputElement>("enhancement-access-token")
-              .value,
-          }),
-        );
-        this.at<HTMLInputElement>("enhancement-access-token").value = "";
-        await this.load();
-      });
-    };
     this.at("enhancement-settings-form").onsubmit = (event) => {
       event.preventDefault();
       void this.action(async () => {
@@ -104,7 +88,6 @@ export class PromptEnhancementPanel {
         );
       });
     document.getElementById("render-dialog")!.addEventListener("close", () => {
-      this.at<HTMLInputElement>("enhancement-access-token").value = "";
       this.at<HTMLInputElement>("enhancement-api-key").value = "";
     });
     document
@@ -138,31 +121,19 @@ export class PromptEnhancementPanel {
     if (!this.initialized)
       toggle.checked = value.configured && value.defaultEnabled;
     this.initialized = true;
-    toggle.disabled = !value.configured || !value.unlocked;
-    if (!value.configured || !value.unlocked) toggle.checked = false;
+    toggle.disabled = !value.configured;
+    if (!value.configured) toggle.checked = false;
     setText(
       this.at("enhancement-connection"),
       !value.configured
         ? t("ui.prompt-enhancement.api-not-configured")
-        : value.unlocked
-          ? value.label
-          : t("ui.prompt-enhancement.unlock-to-use"),
+        : value.label,
     );
     return value;
   }
 
   private async load(): Promise<void> {
-    const status = await this.refresh();
-    this.at("enhancement-unlock-form").hidden = status.unlocked;
-    this.at("enhancement-settings-form").hidden = !status.unlocked;
-    if (!status.unlocked) {
-      this.status(
-        t(
-          "ui.prompt-enhancement.unlock-to-save-keys-and-call-the-enhancement-service",
-        ),
-      );
-      return;
-    }
+    await this.refresh();
     this.fill(
       await requestJson<EnhancementConfiguration>(
         "/api/render/prompt-enhancement",

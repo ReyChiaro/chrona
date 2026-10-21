@@ -4,7 +4,8 @@ import {
   formatMessage,
   isDescriptor,
 } from "../../../i18n/src/index";
-import { msg } from "../../../i18n/src/index";
+import { CameraPresentation } from "./presentation";
+import type { RuntimeFrame as Frame } from "./frame";
 import type { RuntimeHost } from "../../../world/src/ports/runtime-host";
 import type { WorldConfig } from "../../../protocol/src/config";
 import type {
@@ -34,15 +35,6 @@ type SessionStore = {
   claim(id: string): Promise<{ token: string; snapshot: WorldSnapshot | null }>;
   save(snapshot: WorldSnapshot, token?: string): Promise<void>;
 };
-type Frame = {
-  snapshot: WorldSnapshot;
-  observation: Observation;
-  chunks?: ChunkData[];
-  origin: { x: number; z: number };
-  grounded: boolean;
-  traffic: import("../../../world/src/generator").Asset[];
-  metrics: Record<string, unknown>;
-};
 /** A viewer copy and a command channel. The Worker is the sole authoritative runtime. */
 export class WorldRuntime implements RuntimeHost {
   private worker = new Worker(new URL("./host.worker.ts", import.meta.url), {
@@ -61,6 +53,17 @@ export class WorldRuntime implements RuntimeHost {
   private release?: () => void;
   private channel?: BroadcastChannel;
   private disposed = false;
+  private presentation = new CameraPresentation();
+  private configSignature = "";
+  private lastInputAt = -Infinity;
+  private lastInput = "";
+  private lastLookSent = 0;
+  private movement: MovementInput = { forward: 0, right: 0, sprint: false, jump: false };
+  private viewerId = crypto.randomUUID();
+  private viewers = new Map<string, number>();
+  private heartbeat?: ReturnType<typeof setInterval>;
+  private writing = false;
+  private hasWriterFrame = false;
   private writerToken?: string;
   private sessionStore?: SessionStore;
   readOnly = false;
@@ -103,10 +106,7 @@ export class WorldRuntime implements RuntimeHost {
       }
       if (data.type === "frame") {
         this.accept(data.value);
-        this.channel?.postMessage({
-          type: "frame",
-          value: this.fullFrame(data.value),
-        });
+        this.broadcast(data.value);
         return;
       }
       const task = this.pending.get(data.id);
@@ -114,10 +114,7 @@ export class WorldRuntime implements RuntimeHost {
       this.pending.delete(data.id);
       if (data.frame) {
         this.accept(data.frame);
-        this.channel?.postMessage({
-          type: "frame",
-          value: this.fullFrame(data.frame),
-        });
+        this.broadcast(data.frame);
       }
       if (data.error) {
         const value = data.error;
@@ -146,12 +143,18 @@ export class WorldRuntime implements RuntimeHost {
       client.accept(frame);
       client.channel = new BroadcastChannel(`chrona:world:${client.id}`);
       client.channel.onmessage = ({ data }) => {
-        if (data.type === "query" && !client.readOnly)
-          client.channel!.postMessage({
-            type: "frame",
-            value: client.fullFrame(client.latest),
+        if (client.writing && (data.type === "query" || data.type === "viewer")) {
+          const seen = client.viewers.get(data.viewerId);
+          client.viewers.set(data.viewerId, performance.now());
+          if (data.type === "query" || seen === undefined || performance.now() - seen > 6000) client.channel!.postMessage({
+            type: "frame", target: data.viewerId, value: client.fullFrame(client.latest),
           });
-        if (data.type === "frame" && client.readOnly) client.accept(data.value);
+        }
+        if (data.type === "leave") client.viewers.delete(data.viewerId);
+        if (data.type === "frame" && client.readOnly && (!data.target || data.target === client.viewerId)) {
+          if (data.value.resetChunks) client.hasWriterFrame = true;
+          if (client.hasWriterFrame) client.accept(data.value);
+        }
       };
       if (!navigator.locks)
         throw new LocalizedError(
@@ -166,7 +169,11 @@ export class WorldRuntime implements RuntimeHost {
               if (!lock) {
                 client.readOnly = true;
                 client.worker.terminate();
-                client.channel!.postMessage({ type: "query" });
+                const announce = () => client.channel!.postMessage({
+                  type: client.hasWriterFrame ? "viewer" : "query", viewerId: client.viewerId,
+                });
+                announce();
+                client.heartbeat = setInterval(announce, 2000);
                 resolve();
                 return;
               }
@@ -182,6 +189,7 @@ export class WorldRuntime implements RuntimeHost {
                     ),
                   );
               }
+              client.writing = true;
               await client.rpc("start", client.writerToken);
               resolve();
               await new Promise<void>((done) => {
@@ -217,6 +225,9 @@ export class WorldRuntime implements RuntimeHost {
   }
   get camera(): CameraState {
     return this.saved.camera;
+  }
+  presentationCamera(now: number): CameraState {
+    return this.presentation.sample(now);
   }
   get events() {
     return structuredClone(this.saved.events ?? []);
@@ -255,44 +266,56 @@ export class WorldRuntime implements RuntimeHost {
       new CustomEvent("chrona-runtime-error", { detail: error.message }),
     );
   private fullFrame(frame: Frame): Frame {
-    return {
-      ...frame,
-      snapshot: this.snapshot(),
-      observation: this.observation(),
-      chunks: [...this.chunks.active.values()],
-      traffic: [...this.traffic.assets.values()],
-    };
+    // postMessage performs the clone; do not clone snapshots again here.
+    return { ...frame, chunks: [...this.chunks.active.values()], removedChunks: undefined, resetChunks: true };
+  }
+  private broadcast(frame: Frame): void {
+    const now = performance.now();
+    for (const [id, seen] of this.viewers) if (now - seen > 6000) this.viewers.delete(id);
+    if (this.viewers.size) this.channel?.postMessage({ type: "frame", value: frame });
   }
   private accept(frame: Frame) {
+    const contentChanged = !this.saved || this.saved.content?.revision !== frame.snapshot.content?.revision;
     this.latest = frame;
-    const old = new Map(this.chunks?.active ?? []);
     this.saved = frame.snapshot;
     this.observed = frame.observation;
     this.origin = frame.origin;
     this.grounded = frame.grounded;
     this.metrics = frame.metrics;
-    this.configuration = structuredClone(frame.snapshot.config);
-    this.worldClock = new WorldClock(this.configuration.clock);
+    const signature = JSON.stringify(frame.snapshot.config);
+    if (signature !== this.configSignature) {
+      this.configSignature = signature;
+      this.configuration = structuredClone(frame.snapshot.config);
+    }
+    this.presentation.receive(this.camera, performance.now(), 1000 / this.config.execution.publishHz, frame.cameraEpoch, frame.lookSequence);
+    this.worldClock ??= new WorldClock(this.configuration.clock);
     Object.assign(this.worldClock, {
+      config: this.configuration.clock,
       paused: this.saved.simulation.paused,
       tick: this.saved.tick,
       elapsedSeconds: this.saved.elapsedSeconds,
     });
-    this.content = new WorldContent(this.saved.content);
+    if (contentChanged) this.content = new WorldContent(this.saved.content);
     if (!this.chunks) this.chunks = new ChunkManager(this.configuration);
     this.chunks.config = this.configuration;
-    this.chunks.center = worldToHex(
-      this.camera.x,
-      this.camera.z,
-      this.config.chunkRadius,
-    );
-    this.chunks.records.clear();
-    for (const record of this.saved.chunks)
-      this.chunks.records.set(hexKey(record), record);
-    if (frame.chunks) {
-      this.chunks.active.clear();
-      for (const chunk of frame.chunks)
+    this.chunks.center = worldToHex(this.camera.x, this.camera.z, this.config.chunkRadius);
+    if (frame.resetChunks || frame.chunks?.length || this.chunks.records.size !== this.saved.chunks.length) {
+      if (frame.resetChunks) this.chunks.records.clear();
+      for (const record of this.saved.chunks) this.chunks.records.set(hexKey(record), record);
+    }
+    const removed = new Set(frame.removedChunks ?? []);
+    if (frame.resetChunks) {
+      const wanted = new Set(frame.chunks?.map(chunk => chunk.key));
+      for (const key of this.chunks.active.keys()) if (!wanted.has(key)) removed.add(key);
+    }
+    for (const key of removed) this.chunks.active.delete(key);
+    const added: ChunkData[] = [];
+    for (const chunk of frame.chunks ?? []) {
+      const previous = this.chunks.active.get(chunk.key);
+      if (!previous || previous.fingerprint !== chunk.fingerprint || contentChanged) {
         this.chunks.active.set(chunk.key, chunk);
+        added.push(chunk);
+      }
     }
     this.state.entities.clear();
     this.state.bodies.clear();
@@ -306,15 +329,8 @@ export class WorldRuntime implements RuntimeHost {
       this.traffic.assets.set(asset.id, asset);
       this.traffic.bodies.set(asset.id, null);
     }
-    if (frame.chunks)
-      for (const listener of this.listeners)
-        listener({
-          added: frame.chunks,
-          removed: [...old.keys()].filter(
-            (key) => !this.chunks.active.has(key),
-          ),
-          center: this.chunks.center,
-        });
+    if (added.length || removed.size || contentChanged)
+      for (const listener of this.listeners) listener({ added, removed: [...removed], center: this.chunks.center });
   }
   private rpc<T = void>(method: string, ...args: unknown[]): Promise<T> {
     const id = ++this.sequence;
@@ -339,6 +355,7 @@ export class WorldRuntime implements RuntimeHost {
       return Promise.reject(
         new LocalizedError("adapters.client.the-world-session-is-closed"),
       );
+    this.flushInput(true);
     return this.rpc<T>(method, ...args);
   }
   subscribe(listener: (change: ChunkChange) => void) {
@@ -383,16 +400,24 @@ export class WorldRuntime implements RuntimeHost {
       ? (surfaceHeight(chunk, x, z) ?? terrainHeight(x, z, this.config))
       : terrainHeight(x, z, this.config);
   }
+  private flushInput(force = false): void {
+    if (this.readOnly || this.disposed) return;
+    const now = performance.now(), signature = JSON.stringify(this.movement);
+    if (!force && signature === this.lastInput && now - this.lastInputAt < 1000 / this.config.execution.hostHz) return;
+    const look = this.presentation.pendingLook;
+    this.worker.postMessage({
+      method: "input", args: [this.movement, look && look.sequence > this.lastLookSent ? look : undefined], worldId: this.id,
+    });
+    if (look) this.lastLookSent = look.sequence;
+    this.lastInputAt = now;
+    this.lastInput = signature;
+  }
   update(_delta: number, input: MovementInput) {
-    if (!this.readOnly)
-      this.worker.postMessage({
-        method: "input",
-        args: [input],
-        worldId: this.id,
-      });
+    this.movement = input;
+    this.flushInput();
   }
   look(dx: number, dy: number) {
-    if (!this.readOnly) void this.command("look", dx, dy).catch(this.report);
+    if (!this.readOnly && !this.disposed) this.presentation.turn(dx, dy, this.config.presentation.mouseSensitivity, performance.now());
   }
   teleport(x: number, z: number, y?: number) {
     return this.command("teleport", x, z, y);
@@ -418,6 +443,8 @@ export class WorldRuntime implements RuntimeHost {
     if (this.disposed) return;
     this.disposed = true;
     this.release?.();
+    clearInterval(this.heartbeat);
+    if (this.readOnly) this.channel?.postMessage({ type: "leave", viewerId: this.viewerId });
     this.channel?.close();
     this.worker.terminate();
     this.listeners.clear();
