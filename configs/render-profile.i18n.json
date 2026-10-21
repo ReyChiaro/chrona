@@ -1,0 +1,11 @@
+{
+  "label": "render.profile.label",
+  "samplingNote": "render.profile.sampling-note",
+  "parameters": {
+    "steps": "render.parameter.steps",
+    "seed": "render.parameter.seed",
+    "width": "render.parameter.width",
+    "height": "render.parameter.height",
+    "audio": "render.parameter.audio"
+  }
+}

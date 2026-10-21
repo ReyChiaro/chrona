@@ -1,0 +1,95 @@
+{
+  "protocol": 2,
+  "tools": [
+    {
+      "name": "inspect_scene",
+      "agentCallable": true,
+      "description": "Read captured selection, full target recipe, bounded nearby objects, constraints, world revision and conversation. Required before submit_edit. Includes resolved material appearance and full target design for surface-preserving edits. Includes geometryConfig.terrain and waterSystem with native absolute sea level; required for coast/ocean authoring.",
+      "input": {
+        "context": "SceneContext"
+      },
+      "mutation": false
+    },
+    {
+      "name": "read_skill",
+      "agentCallable": true,
+      "description": "Read an authoring protocol: editing, assets, terrain, appearance regions or water.",
+      "endpoint": "GET /api/content/skills/{assets|terrain|appearance|editing|regions|water}",
+      "mutation": false
+    },
+    {
+      "name": "read_protocol",
+      "agentCallable": true,
+      "description": "Read current content-package and edit-plan JSON Schemas, SDK and tool contracts. Use this before writing new recipe code.",
+      "endpoint": "GET /api/content/protocol",
+      "mutation": false
+    },
+    {
+      "name": "plan_scene_edit",
+      "description": "Capture target/version or world-space anchor and write a checked edit plan. Uses the configured API agent, or an explicit offline demo when unconfigured.",
+      "endpoint": "POST /api/content/edit",
+      "mutation": "publishes immutable content; world application remains separate"
+    },
+    {
+      "name": "apply_edit",
+      "description": "Atomically create/replace/move/delete/set constraints; reject stale targets and collisions; preserve base PCG and record undo.",
+      "endpoint": "window.dynamicWorld.editor.apply(plan, package)",
+      "mutation": "explicit world edit"
+    },
+    {
+      "name": "undo_edit",
+      "description": "Restore previous object state and collisions without resetting the clock.",
+      "endpoint": "window.dynamicWorld.runtime.editor.undo()",
+      "mutation": "explicit world edit"
+    },
+    {
+      "name": "write_plugin",
+      "agentCallable": true,
+      "description": "Write a candidate literal TypeScript source with one export default defineContent({...}). API mode authors new geometry; this does not execute or apply it.",
+      "endpoint": "agent-session.write_plugin",
+      "input": {
+        "source": "string"
+      },
+      "mutation": "candidate only"
+    },
+    {
+      "name": "write_validate_plugin",
+      "agentCallable": true,
+      "description": "Preferred authoring tool: write a literal content recipe and immediately compile and validate its actual generated scene using the same checks. Returns measured completion criteria or actionable errors in one model round. Rewrite using this tool after a failure; submit_edit after success. Inspect report.materials bindings/partIndices and unused definitions; named materials must be bound to actual parts. Water requests also measure real submerged area, depth, connected water, coast/beach contact and underwater plant population; fake water tiles fail.",
+      "mutation": "candidate and checked draft only"
+    },
+    {
+      "name": "compile_validate_stage",
+      "agentCallable": true,
+      "description": "Compile candidate and generate the actual regional scene, measure requested terrain/layout/traffic features and report unmet requirements. Repair failures before submit_edit.",
+      "endpoint": "POST /api/content/validate",
+      "mutation": "draft only"
+    },
+    {
+      "name": "submit_edit",
+      "agentCallable": true,
+      "description": "Finish one checked edit plan: create/replace/move/delete/constraint/undo/future. New content must have passed compile_validate_stage. Host binds world/target/version/references and applies collision-checked undoable state separately.",
+      "mutation": "proposal only"
+    },
+    {
+      "name": "publish",
+      "description": "Publish an immutable release after validation. Does not apply it to any world.",
+      "endpoint": "POST /api/content/publish",
+      "input": {
+        "id": "draft UUID"
+      },
+      "mutation": "explicit release"
+    },
+    {
+      "name": "list_releases",
+      "endpoint": "GET /api/content/packages",
+      "mutation": false
+    },
+    {
+      "name": "install_content",
+      "description": "Browser world capability: pin future chunks or explicitly patch a loaded object; preserve clock and old chunk recipes.",
+      "endpoint": "window.dynamicWorld.content.install(package, options)",
+      "mutation": "explicit world edit"
+    }
+  ]
+}

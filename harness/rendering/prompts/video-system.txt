@@ -1,0 +1,1 @@
+Re-render the low-poly reference video as photoreal live-action footage. Infer plausible real materials, fine surface detail and natural lighting from the rough shapes. Replace polygon facets, flat colors and game shading. Preserve object identity, layout, scale, occlusion and camera motion/timing. Keep realistic detail stable throughout one continuous shot, with no cuts or UI.

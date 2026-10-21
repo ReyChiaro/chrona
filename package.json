@@ -1,0 +1,35 @@
+{
+  "name": "chrona",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx apps/api/src/index.ts",
+    "build": "tsc --noEmit && vite build && node scripts/build-static.mjs",
+    "start": "tsx apps/api/src/index.ts --production",
+    "test": "tsx --test tests/*.test.ts",
+    "test:browser": "npm run build && playwright test",
+    "check": "npm run check:protocol && npm run check:i18n && npm test && npm run build",
+    "test:python": "uv run --frozen --group dev pytest -q",
+    "check:protocol": "tsx scripts/protocol.ts --check",
+    "generate:protocol": "tsx scripts/protocol.ts",
+    "check:i18n": "tsx scripts/check-i18n.ts"
+  },
+  "dependencies": {
+    "@dimforge/rapier3d-compat": "^0.19.0",
+    "three": "^0.183.0",
+    "zod": "^4.3.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.58.0",
+    "@types/node": "^25.0.0",
+    "@types/three": "^0.183.0",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.0",
+    "vite": "^7.3.0"
+  },
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ]
+}

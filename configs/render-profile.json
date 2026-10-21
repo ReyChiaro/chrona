@@ -1,0 +1,13 @@
+{
+  "label": "MiniMax-H3 · 参考视频",
+  "samplingNote": "默认 30 步，可自由调整；增加步数会延长生成时间。",
+  "recording": { "fps": 24, "width": 960, "height": 544, "bitsPerSecond": 5000000 },
+  "reference": { "fps": 24, "minDuration": 5, "maxDuration": 15, "frameMultiple": 17, "frameOffset": 5 },
+  "parameters": [
+    { "key": "steps", "label": "采样步数", "type": "number", "default": 30, "min": 2, "max": 100, "step": 1 },
+    { "key": "seed", "label": "生成种子", "type": "number", "default": 42, "min": 0, "max": 2147483647, "step": 1 },
+    { "key": "width", "label": "输出宽度", "type": "number", "default": 960, "min": 384, "max": 1344, "step": 32 },
+    { "key": "height", "label": "输出高度", "type": "number", "default": 544, "min": 384, "max": 768, "step": 32 },
+    { "key": "audio", "label": "保留环境音", "type": "boolean", "default": true }
+  ]
+}

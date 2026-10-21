@@ -1,0 +1,21 @@
+# Native water and coastline authoring
+
+For oceans, seas, bays and lakes, read this skill, inspect_scene.waterSystem and the current JSON schema. Use protocol:2 + action:future + region.water. The engine ALREADY renders water from submerged terrain triangles at one world-space sea level in first-person, the overview and the map. Lowering a real seabed activates that water. Never approximate a water body with transparent box assets, ground-relative planes, a grid of 32-metre patches, per-chunk levels or a material-only constraint. Those cause steps, rectangular edges and floating surfaces; validation rejects them. Surface generation has no 32-metre asset-part limit.
+
+## Geometry recipe
+
+`inspect_scene.waterSystem.level` (also geometryConfig.terrain.waterLevel) is the absolute sea level; it belongs to the engine. Do not set or guess a different water level. regionalSite.elevation is LAND height, not sea level. Set region.elevation to a few metres ABOVE sea level, then carve the interior BELOW sea level with continuous terrace operators. The transition still blends to the mainland and protects old explored chunks. Use preserveCorridors:false when reshaping a fresh basin unless the user explicitly wants the original corridors kept; preserved river/road strips can otherwise fragment the ocean.
+
+Declare `region.water = {kind:'ocean'|'lake', shoreColor:'#RRGGBB', shoreHeight:1.2}`. shoreHeight is a vertical dry-shore band in metres, range 0.3..4. Shore color is applied to actual terrain between sea level and sea level+shoreHeight. No separate hovering beach plates. Lower surface.color can describe the seabed. Water always intersects the same real terrain mesh; it ends at the land contour, not at a rectangular asset boundary. Water color/opacity is engine-owned; do not invent per-region water material fields or water.level.
+
+Example for sea level 0.6 ONLY (recalculate from the actual tool value): region.elevation 3.6, a terrace with height -20, radius 92, offset {x:0,z:0}, region radius 120, transition 28. This gives a deep center and a broad sloping dry shore. Place tall kelp near the deeper interior, not arbitrarily near the shoreline. This is a spatially bounded coastal basin; do not call it a full infinite ocean. Larger coasts may extend via further compatible regions at the same global level.
+
+## Underwater plants
+
+Model kelp and seagrass as their own anchored plant assets, not as part of a water tile. Add `habitat:'underwater'` to their placements or scatter rules. Their BASE is sampled on the seabed, and their entire visible envelope must be below sea level with 0.1m clearance. If a placement disappears/reports failure, move it into deeper water, deepen the basin or shorten the plant. Do not raise the water plane locally. Scatter considers the actual seabed and underwater habitat; count is a candidate budget, not a guaranteed final population. Use enough candidates and spacing so the measured population meets the user's request. Land objects can use habitat:'land'. These fields are optional for backwards compatibility.
+
+No new water-surface assets should exist in the asset map. Water is not a selectable floating tile; plant assets are independently editable. Water has no solid collision; seabed terrain keeps Rapier collision. Swimming/buoyancy, waves, refraction, current-driven plant sway and fluid simulation are not implemented. If the user asks for swaying kelp, explicitly keep that feature in unsupported; do not claim static plants animate.
+
+## Actual acceptance
+
+write_validate_plugin measures native submerged area, maximum depth, shoreline contact, dry beach area, connected-water fraction and underwater plant count from the real generated mesh. Ocean minimum area scales with region radius, maximum depth must be >=3m, a connected body must cover >=85% of measured water, and shoreline/beach must exist. A request containing kelp/seagrass requires >=8 truly submerged plants. Inspect completion.water and all metrics, repair failures, then submit. Check actual output; lowering declared requirements never bypasses these floors. A passed preflight does not change the world until host application. Preserve unrelated regions and immutable old versions.

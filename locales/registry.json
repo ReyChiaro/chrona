@@ -1,0 +1,9 @@
+{
+  "defaultLocale": "en",
+  "locales": [
+    { "code": "en", "label": "English", "enabled": true, "dateLocale": "en-US", "aliases": ["en"] },
+    { "code": "zh-Hans", "label": "简体中文", "enabled": true, "dateLocale": "zh-CN", "aliases": ["zh-Hans", "zh-CN", "zh-SG", "zh"] },
+    { "code": "ja", "label": "日本語", "enabled": false, "dateLocale": "ja-JP", "aliases": ["ja"] },
+    { "code": "zh-Hant", "label": "繁體中文", "enabled": false, "dateLocale": "zh-TW", "aliases": ["zh-Hant", "zh-TW", "zh-HK", "zh-MO"] }
+  ]
+}
