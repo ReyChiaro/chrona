@@ -1,0 +1,105 @@
+{
+  "protocol": 1,
+  "id": "cherry-garden",
+  "version": "1.1.0",
+  "title": "Cherry tree and petals",
+  "description": "Falling petals and ground blossoms driven by the world clock.",
+  "assets": {
+    "cherry": {
+      "label": "Cherry tree",
+      "parts": [
+        {
+          "shape": "cylinder",
+          "size": [
+            0.55,
+            5,
+            0.8
+          ],
+          "position": [
+            0,
+            2.5,
+            0
+          ],
+          "material": "surface-0"
+        },
+        {
+          "shape": "sphere",
+          "size": [
+            7,
+            4.5,
+            6.5
+          ],
+          "position": [
+            0,
+            6,
+            0
+          ],
+          "material": "surface-1"
+        },
+        {
+          "shape": "sphere",
+          "size": [
+            4,
+            3.5,
+            4
+          ],
+          "position": [
+            -2,
+            5,
+            1
+          ],
+          "material": "surface-2"
+        },
+        {
+          "shape": "sphere",
+          "size": [
+            4.5,
+            3.5,
+            4
+          ],
+          "position": [
+            2,
+            5.3,
+            -1
+          ],
+          "material": "surface-3"
+        }
+      ],
+      "collider": {
+        "halfExtents": [
+          0.32,
+          2.5,
+          0.32
+        ],
+        "center": [
+          0,
+          2.5,
+          0
+        ]
+      },
+      "effect": "petals",
+      "materials": {
+        "surface-0": {
+          "label": "surface-0",
+          "color": "#725143",
+          "roughness": 0.95
+        },
+        "surface-1": {
+          "label": "surface-1",
+          "color": "#f3a4bf",
+          "roughness": 0.88
+        },
+        "surface-2": {
+          "label": "surface-2",
+          "color": "#ffd2dd",
+          "roughness": 0.88
+        },
+        "surface-3": {
+          "label": "surface-3",
+          "color": "#e88caf",
+          "roughness": 0.88
+        }
+      }
+    }
+  }
+}

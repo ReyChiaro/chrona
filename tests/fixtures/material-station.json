@@ -1,0 +1,24 @@
+{
+  "protocol": 1, "id": "test-material-station", "version": "1.0.0", "title": "材质观察台", "description": "Material binding acceptance fixture; not an offline agent preset.",
+  "assets": {
+    "station": {
+      "label": "材质观察台",
+      "materials": {
+        "base-stone": {"label": "暖灰色石台", "color": "#9b988d", "roughness": 0.92, "texture": {"pattern": "stone", "seed": 19, "repeat": [2, 2], "contrast": 0.4, "bump": 0.04}},
+        "wood-post": {"label": "深棕色木支架", "color": "#83532e", "roughness": 0.8, "metalness": 0, "texture": {"pattern": "wood", "seed": 17, "repeat": [2, 3], "contrast": 0.35, "bump": 0.025}},
+        "copper": {"label": "铜质球体", "color": "#ca8649", "roughness": 0.3, "metalness": 0.8},
+        "glass": {"label": "蓝色半透明玻璃球", "color": "#93c7dc", "roughness": 0.16, "metalness": 0, "opacity": 0.45, "flatShading": false},
+        "lamp": {"label": "暖色发光灯芯", "color": "#e6b15a", "roughness": 0.5, "emissive": "#ffb146", "emissiveIntensity": 1.5}
+      },
+      "parts": [
+        {"shape": "box", "size": [3, 0.3, 1.5], "position": [0, 0.15, 0], "material": "base-stone"},
+        {"shape": "box", "size": [0.22, 1.2, 0.22], "position": [-0.85, 0.9, 0], "material": "wood-post"},
+        {"shape": "box", "size": [0.22, 1.2, 0.22], "position": [0.85, 0.9, 0], "material": "wood-post"},
+        {"shape": "sphere", "size": [0.7, 0.7, 0.7], "position": [-0.85, 1.75, 0], "material": "copper"},
+        {"shape": "sphere", "size": [0.9, 0.9, 0.9], "position": [0.85, 1.8, 0], "material": "glass"},
+        {"shape": "sphere", "size": [0.25, 0.25, 0.25], "position": [0.85, 1.8, 0], "material": "lamp"}
+      ],
+      "collider": {"halfExtents": [1.5, 0.15, 0.75], "center": [0, 0.15, 0]}, "effect": "none"
+    }
+  }
+}

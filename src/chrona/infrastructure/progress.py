@@ -1,4 +1,5 @@
 """Observe instance-local pipeline progress without patching global library state."""
+
 from contextlib import contextmanager
 from time import perf_counter
 
@@ -17,14 +18,21 @@ class ObservedProgress:
     def update(self, n=1):
         self.bar.update(n)
         self.completed += n
-        self.callback("step", self.completed, self.total, perf_counter() - self.started)
+        self.callback(
+            "step", self.completed, self.total, perf_counter() - self.started
+        )
 
     def __exit__(self, kind, value, traceback):
         try:
             return self.bar.__exit__(kind, value, traceback)
         finally:
             if kind is None:
-                self.callback("end", self.completed, self.total, perf_counter() - self.started)
+                self.callback(
+                    "end",
+                    self.completed,
+                    self.total,
+                    perf_counter() - self.started,
+                )
 
     def __getattr__(self, name):
         return getattr(self.bar, name)
@@ -47,7 +55,11 @@ def observe_steps(block, callback):
 
             def factory(*args, _original=original, **kwargs):
                 bar = _original(*args, **kwargs)
-                return ObservedProgress(bar, kwargs.get("total", getattr(bar, "total", None)), callback)
+                return ObservedProgress(
+                    bar,
+                    kwargs.get("total", getattr(bar, "total", None)),
+                    callback,
+                )
 
             current.progress_bar = factory
             restored.append((current, had_override, previous))

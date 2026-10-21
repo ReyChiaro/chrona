@@ -1,9 +1,7 @@
-# Compatibility rules
+# Version contracts
 
-`versions.json` is generated from the canonical protocol. The generator, save format, content operators and model profile evolve separately. This update preserves PCG, save format 1 and original immutable content packages.
+`versions.json` is generated from the canonical schemas. Object-only recipes use protocol 1; regional recipes use protocol 2. Content parts reference named materials. Global terrain overlays and inline material parts are unsupported.
 
-Exact physics checkpoints are optional and require the same Rapier version and build. Older checkpoints without internal physics state restore domain state only; solver-level equivalence is not promised. Known legacy local-provider prefixes are mapped, while external providers still require explicit configuration.
+World checkpoints require the matching Rapier version and build. Restoring metadata-only snapshots is unsupported. Only current job records under the route workspace are exposed by `/api/render/jobs`.
 
-Shared structures, defaults and limits come from `contracts/schemas/`. Object envelopes, references, collision and region protection are validated semantically by the World Engine and content validator. Record semantic changes and their validation explicitly. Clearing caches is not a world migration.
-
-Language is presentation/request state. Optional message descriptors do not rename schema fields, change generator fingerprints or rewrite published content. Preserve user text and historical evidence. See `docs/I18N.md`.
+Language descriptors are part of the current response format. They preserve user text while allowing the interface and current task records to switch languages.

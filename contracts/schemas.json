@@ -1516,160 +1516,75 @@
                         "maxItems": 32,
                         "type": "array",
                         "items": {
-                          "anyOf": [
-                            {
-                              "type": "object",
-                              "properties": {
-                                "shape": {
-                                  "type": "string",
-                                  "enum": [
-                                    "box",
-                                    "sphere",
-                                    "cone",
-                                    "cylinder"
-                                  ]
-                                },
-                                "size": {
-                                  "type": "array",
-                                  "prefixItems": [
-                                    {
-                                      "type": "number",
-                                      "exclusiveMinimum": 0,
-                                      "maximum": 32
-                                    },
-                                    {
-                                      "type": "number",
-                                      "exclusiveMinimum": 0,
-                                      "maximum": 32
-                                    },
-                                    {
-                                      "type": "number",
-                                      "exclusiveMinimum": 0,
-                                      "maximum": 32
-                                    }
-                                  ],
-                                  "items": false,
-                                  "minItems": 3,
-                                  "maxItems": 3
-                                },
-                                "position": {
-                                  "type": "array",
-                                  "prefixItems": [
-                                    {
-                                      "type": "number",
-                                      "minimum": -32,
-                                      "maximum": 32
-                                    },
-                                    {
-                                      "type": "number",
-                                      "minimum": -32,
-                                      "maximum": 32
-                                    },
-                                    {
-                                      "type": "number",
-                                      "minimum": -32,
-                                      "maximum": 32
-                                    }
-                                  ],
-                                  "items": false,
-                                  "minItems": 3,
-                                  "maxItems": 3
-                                },
-                                "color": {
-                                  "type": "string",
-                                  "pattern": "^#[0-9a-fA-F]{6}$"
-                                },
-                                "roughness": {
-                                  "default": 0.9,
-                                  "type": "number",
-                                  "minimum": 0,
-                                  "maximum": 1
-                                },
-                                "emissive": {
-                                  "type": "string",
-                                  "pattern": "^#[0-9a-fA-F]{6}$"
-                                }
-                              },
-                              "required": [
-                                "shape",
-                                "size",
-                                "position",
-                                "color"
-                              ],
-                              "additionalProperties": false
+                          "type": "object",
+                          "properties": {
+                            "shape": {
+                              "type": "string",
+                              "enum": [
+                                "box",
+                                "sphere",
+                                "cone",
+                                "cylinder"
+                              ]
                             },
-                            {
-                              "type": "object",
-                              "properties": {
-                                "shape": {
-                                  "type": "string",
-                                  "enum": [
-                                    "box",
-                                    "sphere",
-                                    "cone",
-                                    "cylinder"
-                                  ]
+                            "size": {
+                              "type": "array",
+                              "prefixItems": [
+                                {
+                                  "type": "number",
+                                  "exclusiveMinimum": 0,
+                                  "maximum": 32
                                 },
-                                "size": {
-                                  "type": "array",
-                                  "prefixItems": [
-                                    {
-                                      "type": "number",
-                                      "exclusiveMinimum": 0,
-                                      "maximum": 32
-                                    },
-                                    {
-                                      "type": "number",
-                                      "exclusiveMinimum": 0,
-                                      "maximum": 32
-                                    },
-                                    {
-                                      "type": "number",
-                                      "exclusiveMinimum": 0,
-                                      "maximum": 32
-                                    }
-                                  ],
-                                  "items": false,
-                                  "minItems": 3,
-                                  "maxItems": 3
+                                {
+                                  "type": "number",
+                                  "exclusiveMinimum": 0,
+                                  "maximum": 32
                                 },
-                                "position": {
-                                  "type": "array",
-                                  "prefixItems": [
-                                    {
-                                      "type": "number",
-                                      "minimum": -32,
-                                      "maximum": 32
-                                    },
-                                    {
-                                      "type": "number",
-                                      "minimum": -32,
-                                      "maximum": 32
-                                    },
-                                    {
-                                      "type": "number",
-                                      "minimum": -32,
-                                      "maximum": 32
-                                    }
-                                  ],
-                                  "items": false,
-                                  "minItems": 3,
-                                  "maxItems": 3
-                                },
-                                "material": {
-                                  "type": "string",
-                                  "pattern": "^[a-z][a-z0-9-]{0,63}$"
+                                {
+                                  "type": "number",
+                                  "exclusiveMinimum": 0,
+                                  "maximum": 32
                                 }
-                              },
-                              "required": [
-                                "shape",
-                                "size",
-                                "position",
-                                "material"
                               ],
-                              "additionalProperties": false
+                              "items": false,
+                              "minItems": 3,
+                              "maxItems": 3
+                            },
+                            "position": {
+                              "type": "array",
+                              "prefixItems": [
+                                {
+                                  "type": "number",
+                                  "minimum": -32,
+                                  "maximum": 32
+                                },
+                                {
+                                  "type": "number",
+                                  "minimum": -32,
+                                  "maximum": 32
+                                },
+                                {
+                                  "type": "number",
+                                  "minimum": -32,
+                                  "maximum": 32
+                                }
+                              ],
+                              "items": false,
+                              "minItems": 3,
+                              "maxItems": 3
+                            },
+                            "material": {
+                              "type": "string",
+                              "pattern": "^[a-z][a-z0-9-]{0,63}$"
                             }
-                          ]
+                          },
+                          "required": [
+                            "shape",
+                            "size",
+                            "position",
+                            "material"
+                          ],
+                          "additionalProperties": false
                         }
                       },
                       "collider": {
@@ -1812,41 +1727,6 @@
                     ],
                     "additionalProperties": false
                   }
-                },
-                "terrain": {
-                  "type": "object",
-                  "properties": {
-                    "amplitude": {
-                      "type": "number",
-                      "minimum": 0,
-                      "maximum": 12
-                    },
-                    "wavelength": {
-                      "type": "number",
-                      "minimum": 30,
-                      "maximum": 300
-                    },
-                    "tint": {
-                      "type": "string",
-                      "pattern": "^#[0-9a-fA-F]{6}$"
-                    },
-                    "scatterAsset": {
-                      "type": "string",
-                      "pattern": "^[a-z][a-z0-9-]{0,63}$"
-                    },
-                    "density": {
-                      "default": 0.15,
-                      "type": "number",
-                      "minimum": 0,
-                      "maximum": 0.6
-                    }
-                  },
-                  "required": [
-                    "amplitude",
-                    "wavelength",
-                    "tint"
-                  ],
-                  "additionalProperties": false
                 },
                 "weather": {
                   "type": "object",
@@ -2676,160 +2556,75 @@
                       "maxItems": 32,
                       "type": "array",
                       "items": {
-                        "anyOf": [
-                          {
-                            "type": "object",
-                            "properties": {
-                              "shape": {
-                                "type": "string",
-                                "enum": [
-                                  "box",
-                                  "sphere",
-                                  "cone",
-                                  "cylinder"
-                                ]
-                              },
-                              "size": {
-                                "type": "array",
-                                "prefixItems": [
-                                  {
-                                    "type": "number",
-                                    "exclusiveMinimum": 0,
-                                    "maximum": 32
-                                  },
-                                  {
-                                    "type": "number",
-                                    "exclusiveMinimum": 0,
-                                    "maximum": 32
-                                  },
-                                  {
-                                    "type": "number",
-                                    "exclusiveMinimum": 0,
-                                    "maximum": 32
-                                  }
-                                ],
-                                "items": false,
-                                "minItems": 3,
-                                "maxItems": 3
-                              },
-                              "position": {
-                                "type": "array",
-                                "prefixItems": [
-                                  {
-                                    "type": "number",
-                                    "minimum": -32,
-                                    "maximum": 32
-                                  },
-                                  {
-                                    "type": "number",
-                                    "minimum": -32,
-                                    "maximum": 32
-                                  },
-                                  {
-                                    "type": "number",
-                                    "minimum": -32,
-                                    "maximum": 32
-                                  }
-                                ],
-                                "items": false,
-                                "minItems": 3,
-                                "maxItems": 3
-                              },
-                              "color": {
-                                "type": "string",
-                                "pattern": "^#[0-9a-fA-F]{6}$"
-                              },
-                              "roughness": {
-                                "default": 0.9,
-                                "type": "number",
-                                "minimum": 0,
-                                "maximum": 1
-                              },
-                              "emissive": {
-                                "type": "string",
-                                "pattern": "^#[0-9a-fA-F]{6}$"
-                              }
-                            },
-                            "required": [
-                              "shape",
-                              "size",
-                              "position",
-                              "color"
-                            ],
-                            "additionalProperties": false
+                        "type": "object",
+                        "properties": {
+                          "shape": {
+                            "type": "string",
+                            "enum": [
+                              "box",
+                              "sphere",
+                              "cone",
+                              "cylinder"
+                            ]
                           },
-                          {
-                            "type": "object",
-                            "properties": {
-                              "shape": {
-                                "type": "string",
-                                "enum": [
-                                  "box",
-                                  "sphere",
-                                  "cone",
-                                  "cylinder"
-                                ]
+                          "size": {
+                            "type": "array",
+                            "prefixItems": [
+                              {
+                                "type": "number",
+                                "exclusiveMinimum": 0,
+                                "maximum": 32
                               },
-                              "size": {
-                                "type": "array",
-                                "prefixItems": [
-                                  {
-                                    "type": "number",
-                                    "exclusiveMinimum": 0,
-                                    "maximum": 32
-                                  },
-                                  {
-                                    "type": "number",
-                                    "exclusiveMinimum": 0,
-                                    "maximum": 32
-                                  },
-                                  {
-                                    "type": "number",
-                                    "exclusiveMinimum": 0,
-                                    "maximum": 32
-                                  }
-                                ],
-                                "items": false,
-                                "minItems": 3,
-                                "maxItems": 3
+                              {
+                                "type": "number",
+                                "exclusiveMinimum": 0,
+                                "maximum": 32
                               },
-                              "position": {
-                                "type": "array",
-                                "prefixItems": [
-                                  {
-                                    "type": "number",
-                                    "minimum": -32,
-                                    "maximum": 32
-                                  },
-                                  {
-                                    "type": "number",
-                                    "minimum": -32,
-                                    "maximum": 32
-                                  },
-                                  {
-                                    "type": "number",
-                                    "minimum": -32,
-                                    "maximum": 32
-                                  }
-                                ],
-                                "items": false,
-                                "minItems": 3,
-                                "maxItems": 3
-                              },
-                              "material": {
-                                "type": "string",
-                                "pattern": "^[a-z][a-z0-9-]{0,63}$"
+                              {
+                                "type": "number",
+                                "exclusiveMinimum": 0,
+                                "maximum": 32
                               }
-                            },
-                            "required": [
-                              "shape",
-                              "size",
-                              "position",
-                              "material"
                             ],
-                            "additionalProperties": false
+                            "items": false,
+                            "minItems": 3,
+                            "maxItems": 3
+                          },
+                          "position": {
+                            "type": "array",
+                            "prefixItems": [
+                              {
+                                "type": "number",
+                                "minimum": -32,
+                                "maximum": 32
+                              },
+                              {
+                                "type": "number",
+                                "minimum": -32,
+                                "maximum": 32
+                              },
+                              {
+                                "type": "number",
+                                "minimum": -32,
+                                "maximum": 32
+                              }
+                            ],
+                            "items": false,
+                            "minItems": 3,
+                            "maxItems": 3
+                          },
+                          "material": {
+                            "type": "string",
+                            "pattern": "^[a-z][a-z0-9-]{0,63}$"
                           }
-                        ]
+                        },
+                        "required": [
+                          "shape",
+                          "size",
+                          "position",
+                          "material"
+                        ],
+                        "additionalProperties": false
                       }
                     },
                     "collider": {
@@ -3166,160 +2961,75 @@
                       "maxItems": 32,
                       "type": "array",
                       "items": {
-                        "anyOf": [
-                          {
-                            "type": "object",
-                            "properties": {
-                              "shape": {
-                                "type": "string",
-                                "enum": [
-                                  "box",
-                                  "sphere",
-                                  "cone",
-                                  "cylinder"
-                                ]
-                              },
-                              "size": {
-                                "type": "array",
-                                "prefixItems": [
-                                  {
-                                    "type": "number",
-                                    "exclusiveMinimum": 0,
-                                    "maximum": 32
-                                  },
-                                  {
-                                    "type": "number",
-                                    "exclusiveMinimum": 0,
-                                    "maximum": 32
-                                  },
-                                  {
-                                    "type": "number",
-                                    "exclusiveMinimum": 0,
-                                    "maximum": 32
-                                  }
-                                ],
-                                "items": false,
-                                "minItems": 3,
-                                "maxItems": 3
-                              },
-                              "position": {
-                                "type": "array",
-                                "prefixItems": [
-                                  {
-                                    "type": "number",
-                                    "minimum": -32,
-                                    "maximum": 32
-                                  },
-                                  {
-                                    "type": "number",
-                                    "minimum": -32,
-                                    "maximum": 32
-                                  },
-                                  {
-                                    "type": "number",
-                                    "minimum": -32,
-                                    "maximum": 32
-                                  }
-                                ],
-                                "items": false,
-                                "minItems": 3,
-                                "maxItems": 3
-                              },
-                              "color": {
-                                "type": "string",
-                                "pattern": "^#[0-9a-fA-F]{6}$"
-                              },
-                              "roughness": {
-                                "default": 0.9,
-                                "type": "number",
-                                "minimum": 0,
-                                "maximum": 1
-                              },
-                              "emissive": {
-                                "type": "string",
-                                "pattern": "^#[0-9a-fA-F]{6}$"
-                              }
-                            },
-                            "required": [
-                              "shape",
-                              "size",
-                              "position",
-                              "color"
-                            ],
-                            "additionalProperties": false
+                        "type": "object",
+                        "properties": {
+                          "shape": {
+                            "type": "string",
+                            "enum": [
+                              "box",
+                              "sphere",
+                              "cone",
+                              "cylinder"
+                            ]
                           },
-                          {
-                            "type": "object",
-                            "properties": {
-                              "shape": {
-                                "type": "string",
-                                "enum": [
-                                  "box",
-                                  "sphere",
-                                  "cone",
-                                  "cylinder"
-                                ]
+                          "size": {
+                            "type": "array",
+                            "prefixItems": [
+                              {
+                                "type": "number",
+                                "exclusiveMinimum": 0,
+                                "maximum": 32
                               },
-                              "size": {
-                                "type": "array",
-                                "prefixItems": [
-                                  {
-                                    "type": "number",
-                                    "exclusiveMinimum": 0,
-                                    "maximum": 32
-                                  },
-                                  {
-                                    "type": "number",
-                                    "exclusiveMinimum": 0,
-                                    "maximum": 32
-                                  },
-                                  {
-                                    "type": "number",
-                                    "exclusiveMinimum": 0,
-                                    "maximum": 32
-                                  }
-                                ],
-                                "items": false,
-                                "minItems": 3,
-                                "maxItems": 3
+                              {
+                                "type": "number",
+                                "exclusiveMinimum": 0,
+                                "maximum": 32
                               },
-                              "position": {
-                                "type": "array",
-                                "prefixItems": [
-                                  {
-                                    "type": "number",
-                                    "minimum": -32,
-                                    "maximum": 32
-                                  },
-                                  {
-                                    "type": "number",
-                                    "minimum": -32,
-                                    "maximum": 32
-                                  },
-                                  {
-                                    "type": "number",
-                                    "minimum": -32,
-                                    "maximum": 32
-                                  }
-                                ],
-                                "items": false,
-                                "minItems": 3,
-                                "maxItems": 3
-                              },
-                              "material": {
-                                "type": "string",
-                                "pattern": "^[a-z][a-z0-9-]{0,63}$"
+                              {
+                                "type": "number",
+                                "exclusiveMinimum": 0,
+                                "maximum": 32
                               }
-                            },
-                            "required": [
-                              "shape",
-                              "size",
-                              "position",
-                              "material"
                             ],
-                            "additionalProperties": false
+                            "items": false,
+                            "minItems": 3,
+                            "maxItems": 3
+                          },
+                          "position": {
+                            "type": "array",
+                            "prefixItems": [
+                              {
+                                "type": "number",
+                                "minimum": -32,
+                                "maximum": 32
+                              },
+                              {
+                                "type": "number",
+                                "minimum": -32,
+                                "maximum": 32
+                              },
+                              {
+                                "type": "number",
+                                "minimum": -32,
+                                "maximum": 32
+                              }
+                            ],
+                            "items": false,
+                            "minItems": 3,
+                            "maxItems": 3
+                          },
+                          "material": {
+                            "type": "string",
+                            "pattern": "^[a-z][a-z0-9-]{0,63}$"
                           }
-                        ]
+                        },
+                        "required": [
+                          "shape",
+                          "size",
+                          "position",
+                          "material"
+                        ],
+                        "additionalProperties": false
                       }
                     },
                     "collider": {
@@ -3695,160 +3405,75 @@
                                     "maxItems": 32,
                                     "type": "array",
                                     "items": {
-                                      "anyOf": [
-                                        {
-                                          "type": "object",
-                                          "properties": {
-                                            "shape": {
-                                              "type": "string",
-                                              "enum": [
-                                                "box",
-                                                "sphere",
-                                                "cone",
-                                                "cylinder"
-                                              ]
-                                            },
-                                            "size": {
-                                              "type": "array",
-                                              "prefixItems": [
-                                                {
-                                                  "type": "number",
-                                                  "exclusiveMinimum": 0,
-                                                  "maximum": 32
-                                                },
-                                                {
-                                                  "type": "number",
-                                                  "exclusiveMinimum": 0,
-                                                  "maximum": 32
-                                                },
-                                                {
-                                                  "type": "number",
-                                                  "exclusiveMinimum": 0,
-                                                  "maximum": 32
-                                                }
-                                              ],
-                                              "items": false,
-                                              "minItems": 3,
-                                              "maxItems": 3
-                                            },
-                                            "position": {
-                                              "type": "array",
-                                              "prefixItems": [
-                                                {
-                                                  "type": "number",
-                                                  "minimum": -32,
-                                                  "maximum": 32
-                                                },
-                                                {
-                                                  "type": "number",
-                                                  "minimum": -32,
-                                                  "maximum": 32
-                                                },
-                                                {
-                                                  "type": "number",
-                                                  "minimum": -32,
-                                                  "maximum": 32
-                                                }
-                                              ],
-                                              "items": false,
-                                              "minItems": 3,
-                                              "maxItems": 3
-                                            },
-                                            "color": {
-                                              "type": "string",
-                                              "pattern": "^#[0-9a-fA-F]{6}$"
-                                            },
-                                            "roughness": {
-                                              "default": 0.9,
-                                              "type": "number",
-                                              "minimum": 0,
-                                              "maximum": 1
-                                            },
-                                            "emissive": {
-                                              "type": "string",
-                                              "pattern": "^#[0-9a-fA-F]{6}$"
-                                            }
-                                          },
-                                          "required": [
-                                            "shape",
-                                            "size",
-                                            "position",
-                                            "color"
-                                          ],
-                                          "additionalProperties": false
+                                      "type": "object",
+                                      "properties": {
+                                        "shape": {
+                                          "type": "string",
+                                          "enum": [
+                                            "box",
+                                            "sphere",
+                                            "cone",
+                                            "cylinder"
+                                          ]
                                         },
-                                        {
-                                          "type": "object",
-                                          "properties": {
-                                            "shape": {
-                                              "type": "string",
-                                              "enum": [
-                                                "box",
-                                                "sphere",
-                                                "cone",
-                                                "cylinder"
-                                              ]
+                                        "size": {
+                                          "type": "array",
+                                          "prefixItems": [
+                                            {
+                                              "type": "number",
+                                              "exclusiveMinimum": 0,
+                                              "maximum": 32
                                             },
-                                            "size": {
-                                              "type": "array",
-                                              "prefixItems": [
-                                                {
-                                                  "type": "number",
-                                                  "exclusiveMinimum": 0,
-                                                  "maximum": 32
-                                                },
-                                                {
-                                                  "type": "number",
-                                                  "exclusiveMinimum": 0,
-                                                  "maximum": 32
-                                                },
-                                                {
-                                                  "type": "number",
-                                                  "exclusiveMinimum": 0,
-                                                  "maximum": 32
-                                                }
-                                              ],
-                                              "items": false,
-                                              "minItems": 3,
-                                              "maxItems": 3
+                                            {
+                                              "type": "number",
+                                              "exclusiveMinimum": 0,
+                                              "maximum": 32
                                             },
-                                            "position": {
-                                              "type": "array",
-                                              "prefixItems": [
-                                                {
-                                                  "type": "number",
-                                                  "minimum": -32,
-                                                  "maximum": 32
-                                                },
-                                                {
-                                                  "type": "number",
-                                                  "minimum": -32,
-                                                  "maximum": 32
-                                                },
-                                                {
-                                                  "type": "number",
-                                                  "minimum": -32,
-                                                  "maximum": 32
-                                                }
-                                              ],
-                                              "items": false,
-                                              "minItems": 3,
-                                              "maxItems": 3
-                                            },
-                                            "material": {
-                                              "type": "string",
-                                              "pattern": "^[a-z][a-z0-9-]{0,63}$"
+                                            {
+                                              "type": "number",
+                                              "exclusiveMinimum": 0,
+                                              "maximum": 32
                                             }
-                                          },
-                                          "required": [
-                                            "shape",
-                                            "size",
-                                            "position",
-                                            "material"
                                           ],
-                                          "additionalProperties": false
+                                          "items": false,
+                                          "minItems": 3,
+                                          "maxItems": 3
+                                        },
+                                        "position": {
+                                          "type": "array",
+                                          "prefixItems": [
+                                            {
+                                              "type": "number",
+                                              "minimum": -32,
+                                              "maximum": 32
+                                            },
+                                            {
+                                              "type": "number",
+                                              "minimum": -32,
+                                              "maximum": 32
+                                            },
+                                            {
+                                              "type": "number",
+                                              "minimum": -32,
+                                              "maximum": 32
+                                            }
+                                          ],
+                                          "items": false,
+                                          "minItems": 3,
+                                          "maxItems": 3
+                                        },
+                                        "material": {
+                                          "type": "string",
+                                          "pattern": "^[a-z][a-z0-9-]{0,63}$"
                                         }
-                                      ]
+                                      },
+                                      "required": [
+                                        "shape",
+                                        "size",
+                                        "position",
+                                        "material"
+                                      ],
+                                      "additionalProperties": false
                                     }
                                   },
                                   "collider": {
@@ -4178,160 +3803,75 @@
                                     "maxItems": 32,
                                     "type": "array",
                                     "items": {
-                                      "anyOf": [
-                                        {
-                                          "type": "object",
-                                          "properties": {
-                                            "shape": {
-                                              "type": "string",
-                                              "enum": [
-                                                "box",
-                                                "sphere",
-                                                "cone",
-                                                "cylinder"
-                                              ]
-                                            },
-                                            "size": {
-                                              "type": "array",
-                                              "prefixItems": [
-                                                {
-                                                  "type": "number",
-                                                  "exclusiveMinimum": 0,
-                                                  "maximum": 32
-                                                },
-                                                {
-                                                  "type": "number",
-                                                  "exclusiveMinimum": 0,
-                                                  "maximum": 32
-                                                },
-                                                {
-                                                  "type": "number",
-                                                  "exclusiveMinimum": 0,
-                                                  "maximum": 32
-                                                }
-                                              ],
-                                              "items": false,
-                                              "minItems": 3,
-                                              "maxItems": 3
-                                            },
-                                            "position": {
-                                              "type": "array",
-                                              "prefixItems": [
-                                                {
-                                                  "type": "number",
-                                                  "minimum": -32,
-                                                  "maximum": 32
-                                                },
-                                                {
-                                                  "type": "number",
-                                                  "minimum": -32,
-                                                  "maximum": 32
-                                                },
-                                                {
-                                                  "type": "number",
-                                                  "minimum": -32,
-                                                  "maximum": 32
-                                                }
-                                              ],
-                                              "items": false,
-                                              "minItems": 3,
-                                              "maxItems": 3
-                                            },
-                                            "color": {
-                                              "type": "string",
-                                              "pattern": "^#[0-9a-fA-F]{6}$"
-                                            },
-                                            "roughness": {
-                                              "default": 0.9,
-                                              "type": "number",
-                                              "minimum": 0,
-                                              "maximum": 1
-                                            },
-                                            "emissive": {
-                                              "type": "string",
-                                              "pattern": "^#[0-9a-fA-F]{6}$"
-                                            }
-                                          },
-                                          "required": [
-                                            "shape",
-                                            "size",
-                                            "position",
-                                            "color"
-                                          ],
-                                          "additionalProperties": false
+                                      "type": "object",
+                                      "properties": {
+                                        "shape": {
+                                          "type": "string",
+                                          "enum": [
+                                            "box",
+                                            "sphere",
+                                            "cone",
+                                            "cylinder"
+                                          ]
                                         },
-                                        {
-                                          "type": "object",
-                                          "properties": {
-                                            "shape": {
-                                              "type": "string",
-                                              "enum": [
-                                                "box",
-                                                "sphere",
-                                                "cone",
-                                                "cylinder"
-                                              ]
+                                        "size": {
+                                          "type": "array",
+                                          "prefixItems": [
+                                            {
+                                              "type": "number",
+                                              "exclusiveMinimum": 0,
+                                              "maximum": 32
                                             },
-                                            "size": {
-                                              "type": "array",
-                                              "prefixItems": [
-                                                {
-                                                  "type": "number",
-                                                  "exclusiveMinimum": 0,
-                                                  "maximum": 32
-                                                },
-                                                {
-                                                  "type": "number",
-                                                  "exclusiveMinimum": 0,
-                                                  "maximum": 32
-                                                },
-                                                {
-                                                  "type": "number",
-                                                  "exclusiveMinimum": 0,
-                                                  "maximum": 32
-                                                }
-                                              ],
-                                              "items": false,
-                                              "minItems": 3,
-                                              "maxItems": 3
+                                            {
+                                              "type": "number",
+                                              "exclusiveMinimum": 0,
+                                              "maximum": 32
                                             },
-                                            "position": {
-                                              "type": "array",
-                                              "prefixItems": [
-                                                {
-                                                  "type": "number",
-                                                  "minimum": -32,
-                                                  "maximum": 32
-                                                },
-                                                {
-                                                  "type": "number",
-                                                  "minimum": -32,
-                                                  "maximum": 32
-                                                },
-                                                {
-                                                  "type": "number",
-                                                  "minimum": -32,
-                                                  "maximum": 32
-                                                }
-                                              ],
-                                              "items": false,
-                                              "minItems": 3,
-                                              "maxItems": 3
-                                            },
-                                            "material": {
-                                              "type": "string",
-                                              "pattern": "^[a-z][a-z0-9-]{0,63}$"
+                                            {
+                                              "type": "number",
+                                              "exclusiveMinimum": 0,
+                                              "maximum": 32
                                             }
-                                          },
-                                          "required": [
-                                            "shape",
-                                            "size",
-                                            "position",
-                                            "material"
                                           ],
-                                          "additionalProperties": false
+                                          "items": false,
+                                          "minItems": 3,
+                                          "maxItems": 3
+                                        },
+                                        "position": {
+                                          "type": "array",
+                                          "prefixItems": [
+                                            {
+                                              "type": "number",
+                                              "minimum": -32,
+                                              "maximum": 32
+                                            },
+                                            {
+                                              "type": "number",
+                                              "minimum": -32,
+                                              "maximum": 32
+                                            },
+                                            {
+                                              "type": "number",
+                                              "minimum": -32,
+                                              "maximum": 32
+                                            }
+                                          ],
+                                          "items": false,
+                                          "minItems": 3,
+                                          "maxItems": 3
+                                        },
+                                        "material": {
+                                          "type": "string",
+                                          "pattern": "^[a-z][a-z0-9-]{0,63}$"
                                         }
-                                      ]
+                                      },
+                                      "required": [
+                                        "shape",
+                                        "size",
+                                        "position",
+                                        "material"
+                                      ],
+                                      "additionalProperties": false
                                     }
                                   },
                                   "collider": {
@@ -4661,160 +4201,75 @@
                                     "maxItems": 32,
                                     "type": "array",
                                     "items": {
-                                      "anyOf": [
-                                        {
-                                          "type": "object",
-                                          "properties": {
-                                            "shape": {
-                                              "type": "string",
-                                              "enum": [
-                                                "box",
-                                                "sphere",
-                                                "cone",
-                                                "cylinder"
-                                              ]
-                                            },
-                                            "size": {
-                                              "type": "array",
-                                              "prefixItems": [
-                                                {
-                                                  "type": "number",
-                                                  "exclusiveMinimum": 0,
-                                                  "maximum": 32
-                                                },
-                                                {
-                                                  "type": "number",
-                                                  "exclusiveMinimum": 0,
-                                                  "maximum": 32
-                                                },
-                                                {
-                                                  "type": "number",
-                                                  "exclusiveMinimum": 0,
-                                                  "maximum": 32
-                                                }
-                                              ],
-                                              "items": false,
-                                              "minItems": 3,
-                                              "maxItems": 3
-                                            },
-                                            "position": {
-                                              "type": "array",
-                                              "prefixItems": [
-                                                {
-                                                  "type": "number",
-                                                  "minimum": -32,
-                                                  "maximum": 32
-                                                },
-                                                {
-                                                  "type": "number",
-                                                  "minimum": -32,
-                                                  "maximum": 32
-                                                },
-                                                {
-                                                  "type": "number",
-                                                  "minimum": -32,
-                                                  "maximum": 32
-                                                }
-                                              ],
-                                              "items": false,
-                                              "minItems": 3,
-                                              "maxItems": 3
-                                            },
-                                            "color": {
-                                              "type": "string",
-                                              "pattern": "^#[0-9a-fA-F]{6}$"
-                                            },
-                                            "roughness": {
-                                              "default": 0.9,
-                                              "type": "number",
-                                              "minimum": 0,
-                                              "maximum": 1
-                                            },
-                                            "emissive": {
-                                              "type": "string",
-                                              "pattern": "^#[0-9a-fA-F]{6}$"
-                                            }
-                                          },
-                                          "required": [
-                                            "shape",
-                                            "size",
-                                            "position",
-                                            "color"
-                                          ],
-                                          "additionalProperties": false
+                                      "type": "object",
+                                      "properties": {
+                                        "shape": {
+                                          "type": "string",
+                                          "enum": [
+                                            "box",
+                                            "sphere",
+                                            "cone",
+                                            "cylinder"
+                                          ]
                                         },
-                                        {
-                                          "type": "object",
-                                          "properties": {
-                                            "shape": {
-                                              "type": "string",
-                                              "enum": [
-                                                "box",
-                                                "sphere",
-                                                "cone",
-                                                "cylinder"
-                                              ]
+                                        "size": {
+                                          "type": "array",
+                                          "prefixItems": [
+                                            {
+                                              "type": "number",
+                                              "exclusiveMinimum": 0,
+                                              "maximum": 32
                                             },
-                                            "size": {
-                                              "type": "array",
-                                              "prefixItems": [
-                                                {
-                                                  "type": "number",
-                                                  "exclusiveMinimum": 0,
-                                                  "maximum": 32
-                                                },
-                                                {
-                                                  "type": "number",
-                                                  "exclusiveMinimum": 0,
-                                                  "maximum": 32
-                                                },
-                                                {
-                                                  "type": "number",
-                                                  "exclusiveMinimum": 0,
-                                                  "maximum": 32
-                                                }
-                                              ],
-                                              "items": false,
-                                              "minItems": 3,
-                                              "maxItems": 3
+                                            {
+                                              "type": "number",
+                                              "exclusiveMinimum": 0,
+                                              "maximum": 32
                                             },
-                                            "position": {
-                                              "type": "array",
-                                              "prefixItems": [
-                                                {
-                                                  "type": "number",
-                                                  "minimum": -32,
-                                                  "maximum": 32
-                                                },
-                                                {
-                                                  "type": "number",
-                                                  "minimum": -32,
-                                                  "maximum": 32
-                                                },
-                                                {
-                                                  "type": "number",
-                                                  "minimum": -32,
-                                                  "maximum": 32
-                                                }
-                                              ],
-                                              "items": false,
-                                              "minItems": 3,
-                                              "maxItems": 3
-                                            },
-                                            "material": {
-                                              "type": "string",
-                                              "pattern": "^[a-z][a-z0-9-]{0,63}$"
+                                            {
+                                              "type": "number",
+                                              "exclusiveMinimum": 0,
+                                              "maximum": 32
                                             }
-                                          },
-                                          "required": [
-                                            "shape",
-                                            "size",
-                                            "position",
-                                            "material"
                                           ],
-                                          "additionalProperties": false
+                                          "items": false,
+                                          "minItems": 3,
+                                          "maxItems": 3
+                                        },
+                                        "position": {
+                                          "type": "array",
+                                          "prefixItems": [
+                                            {
+                                              "type": "number",
+                                              "minimum": -32,
+                                              "maximum": 32
+                                            },
+                                            {
+                                              "type": "number",
+                                              "minimum": -32,
+                                              "maximum": 32
+                                            },
+                                            {
+                                              "type": "number",
+                                              "minimum": -32,
+                                              "maximum": 32
+                                            }
+                                          ],
+                                          "items": false,
+                                          "minItems": 3,
+                                          "maxItems": 3
+                                        },
+                                        "material": {
+                                          "type": "string",
+                                          "pattern": "^[a-z][a-z0-9-]{0,63}$"
                                         }
-                                      ]
+                                      },
+                                      "required": [
+                                        "shape",
+                                        "size",
+                                        "position",
+                                        "material"
+                                      ],
+                                      "additionalProperties": false
                                     }
                                   },
                                   "collider": {
@@ -5317,160 +4772,75 @@
                                     "maxItems": 32,
                                     "type": "array",
                                     "items": {
-                                      "anyOf": [
-                                        {
-                                          "type": "object",
-                                          "properties": {
-                                            "shape": {
-                                              "type": "string",
-                                              "enum": [
-                                                "box",
-                                                "sphere",
-                                                "cone",
-                                                "cylinder"
-                                              ]
-                                            },
-                                            "size": {
-                                              "type": "array",
-                                              "prefixItems": [
-                                                {
-                                                  "type": "number",
-                                                  "exclusiveMinimum": 0,
-                                                  "maximum": 32
-                                                },
-                                                {
-                                                  "type": "number",
-                                                  "exclusiveMinimum": 0,
-                                                  "maximum": 32
-                                                },
-                                                {
-                                                  "type": "number",
-                                                  "exclusiveMinimum": 0,
-                                                  "maximum": 32
-                                                }
-                                              ],
-                                              "items": false,
-                                              "minItems": 3,
-                                              "maxItems": 3
-                                            },
-                                            "position": {
-                                              "type": "array",
-                                              "prefixItems": [
-                                                {
-                                                  "type": "number",
-                                                  "minimum": -32,
-                                                  "maximum": 32
-                                                },
-                                                {
-                                                  "type": "number",
-                                                  "minimum": -32,
-                                                  "maximum": 32
-                                                },
-                                                {
-                                                  "type": "number",
-                                                  "minimum": -32,
-                                                  "maximum": 32
-                                                }
-                                              ],
-                                              "items": false,
-                                              "minItems": 3,
-                                              "maxItems": 3
-                                            },
-                                            "color": {
-                                              "type": "string",
-                                              "pattern": "^#[0-9a-fA-F]{6}$"
-                                            },
-                                            "roughness": {
-                                              "default": 0.9,
-                                              "type": "number",
-                                              "minimum": 0,
-                                              "maximum": 1
-                                            },
-                                            "emissive": {
-                                              "type": "string",
-                                              "pattern": "^#[0-9a-fA-F]{6}$"
-                                            }
-                                          },
-                                          "required": [
-                                            "shape",
-                                            "size",
-                                            "position",
-                                            "color"
-                                          ],
-                                          "additionalProperties": false
+                                      "type": "object",
+                                      "properties": {
+                                        "shape": {
+                                          "type": "string",
+                                          "enum": [
+                                            "box",
+                                            "sphere",
+                                            "cone",
+                                            "cylinder"
+                                          ]
                                         },
-                                        {
-                                          "type": "object",
-                                          "properties": {
-                                            "shape": {
-                                              "type": "string",
-                                              "enum": [
-                                                "box",
-                                                "sphere",
-                                                "cone",
-                                                "cylinder"
-                                              ]
+                                        "size": {
+                                          "type": "array",
+                                          "prefixItems": [
+                                            {
+                                              "type": "number",
+                                              "exclusiveMinimum": 0,
+                                              "maximum": 32
                                             },
-                                            "size": {
-                                              "type": "array",
-                                              "prefixItems": [
-                                                {
-                                                  "type": "number",
-                                                  "exclusiveMinimum": 0,
-                                                  "maximum": 32
-                                                },
-                                                {
-                                                  "type": "number",
-                                                  "exclusiveMinimum": 0,
-                                                  "maximum": 32
-                                                },
-                                                {
-                                                  "type": "number",
-                                                  "exclusiveMinimum": 0,
-                                                  "maximum": 32
-                                                }
-                                              ],
-                                              "items": false,
-                                              "minItems": 3,
-                                              "maxItems": 3
+                                            {
+                                              "type": "number",
+                                              "exclusiveMinimum": 0,
+                                              "maximum": 32
                                             },
-                                            "position": {
-                                              "type": "array",
-                                              "prefixItems": [
-                                                {
-                                                  "type": "number",
-                                                  "minimum": -32,
-                                                  "maximum": 32
-                                                },
-                                                {
-                                                  "type": "number",
-                                                  "minimum": -32,
-                                                  "maximum": 32
-                                                },
-                                                {
-                                                  "type": "number",
-                                                  "minimum": -32,
-                                                  "maximum": 32
-                                                }
-                                              ],
-                                              "items": false,
-                                              "minItems": 3,
-                                              "maxItems": 3
-                                            },
-                                            "material": {
-                                              "type": "string",
-                                              "pattern": "^[a-z][a-z0-9-]{0,63}$"
+                                            {
+                                              "type": "number",
+                                              "exclusiveMinimum": 0,
+                                              "maximum": 32
                                             }
-                                          },
-                                          "required": [
-                                            "shape",
-                                            "size",
-                                            "position",
-                                            "material"
                                           ],
-                                          "additionalProperties": false
+                                          "items": false,
+                                          "minItems": 3,
+                                          "maxItems": 3
+                                        },
+                                        "position": {
+                                          "type": "array",
+                                          "prefixItems": [
+                                            {
+                                              "type": "number",
+                                              "minimum": -32,
+                                              "maximum": 32
+                                            },
+                                            {
+                                              "type": "number",
+                                              "minimum": -32,
+                                              "maximum": 32
+                                            },
+                                            {
+                                              "type": "number",
+                                              "minimum": -32,
+                                              "maximum": 32
+                                            }
+                                          ],
+                                          "items": false,
+                                          "minItems": 3,
+                                          "maxItems": 3
+                                        },
+                                        "material": {
+                                          "type": "string",
+                                          "pattern": "^[a-z][a-z0-9-]{0,63}$"
                                         }
-                                      ]
+                                      },
+                                      "required": [
+                                        "shape",
+                                        "size",
+                                        "position",
+                                        "material"
+                                      ],
+                                      "additionalProperties": false
                                     }
                                   },
                                   "collider": {
@@ -5800,160 +5170,75 @@
                                     "maxItems": 32,
                                     "type": "array",
                                     "items": {
-                                      "anyOf": [
-                                        {
-                                          "type": "object",
-                                          "properties": {
-                                            "shape": {
-                                              "type": "string",
-                                              "enum": [
-                                                "box",
-                                                "sphere",
-                                                "cone",
-                                                "cylinder"
-                                              ]
-                                            },
-                                            "size": {
-                                              "type": "array",
-                                              "prefixItems": [
-                                                {
-                                                  "type": "number",
-                                                  "exclusiveMinimum": 0,
-                                                  "maximum": 32
-                                                },
-                                                {
-                                                  "type": "number",
-                                                  "exclusiveMinimum": 0,
-                                                  "maximum": 32
-                                                },
-                                                {
-                                                  "type": "number",
-                                                  "exclusiveMinimum": 0,
-                                                  "maximum": 32
-                                                }
-                                              ],
-                                              "items": false,
-                                              "minItems": 3,
-                                              "maxItems": 3
-                                            },
-                                            "position": {
-                                              "type": "array",
-                                              "prefixItems": [
-                                                {
-                                                  "type": "number",
-                                                  "minimum": -32,
-                                                  "maximum": 32
-                                                },
-                                                {
-                                                  "type": "number",
-                                                  "minimum": -32,
-                                                  "maximum": 32
-                                                },
-                                                {
-                                                  "type": "number",
-                                                  "minimum": -32,
-                                                  "maximum": 32
-                                                }
-                                              ],
-                                              "items": false,
-                                              "minItems": 3,
-                                              "maxItems": 3
-                                            },
-                                            "color": {
-                                              "type": "string",
-                                              "pattern": "^#[0-9a-fA-F]{6}$"
-                                            },
-                                            "roughness": {
-                                              "default": 0.9,
-                                              "type": "number",
-                                              "minimum": 0,
-                                              "maximum": 1
-                                            },
-                                            "emissive": {
-                                              "type": "string",
-                                              "pattern": "^#[0-9a-fA-F]{6}$"
-                                            }
-                                          },
-                                          "required": [
-                                            "shape",
-                                            "size",
-                                            "position",
-                                            "color"
-                                          ],
-                                          "additionalProperties": false
+                                      "type": "object",
+                                      "properties": {
+                                        "shape": {
+                                          "type": "string",
+                                          "enum": [
+                                            "box",
+                                            "sphere",
+                                            "cone",
+                                            "cylinder"
+                                          ]
                                         },
-                                        {
-                                          "type": "object",
-                                          "properties": {
-                                            "shape": {
-                                              "type": "string",
-                                              "enum": [
-                                                "box",
-                                                "sphere",
-                                                "cone",
-                                                "cylinder"
-                                              ]
+                                        "size": {
+                                          "type": "array",
+                                          "prefixItems": [
+                                            {
+                                              "type": "number",
+                                              "exclusiveMinimum": 0,
+                                              "maximum": 32
                                             },
-                                            "size": {
-                                              "type": "array",
-                                              "prefixItems": [
-                                                {
-                                                  "type": "number",
-                                                  "exclusiveMinimum": 0,
-                                                  "maximum": 32
-                                                },
-                                                {
-                                                  "type": "number",
-                                                  "exclusiveMinimum": 0,
-                                                  "maximum": 32
-                                                },
-                                                {
-                                                  "type": "number",
-                                                  "exclusiveMinimum": 0,
-                                                  "maximum": 32
-                                                }
-                                              ],
-                                              "items": false,
-                                              "minItems": 3,
-                                              "maxItems": 3
+                                            {
+                                              "type": "number",
+                                              "exclusiveMinimum": 0,
+                                              "maximum": 32
                                             },
-                                            "position": {
-                                              "type": "array",
-                                              "prefixItems": [
-                                                {
-                                                  "type": "number",
-                                                  "minimum": -32,
-                                                  "maximum": 32
-                                                },
-                                                {
-                                                  "type": "number",
-                                                  "minimum": -32,
-                                                  "maximum": 32
-                                                },
-                                                {
-                                                  "type": "number",
-                                                  "minimum": -32,
-                                                  "maximum": 32
-                                                }
-                                              ],
-                                              "items": false,
-                                              "minItems": 3,
-                                              "maxItems": 3
-                                            },
-                                            "material": {
-                                              "type": "string",
-                                              "pattern": "^[a-z][a-z0-9-]{0,63}$"
+                                            {
+                                              "type": "number",
+                                              "exclusiveMinimum": 0,
+                                              "maximum": 32
                                             }
-                                          },
-                                          "required": [
-                                            "shape",
-                                            "size",
-                                            "position",
-                                            "material"
                                           ],
-                                          "additionalProperties": false
+                                          "items": false,
+                                          "minItems": 3,
+                                          "maxItems": 3
+                                        },
+                                        "position": {
+                                          "type": "array",
+                                          "prefixItems": [
+                                            {
+                                              "type": "number",
+                                              "minimum": -32,
+                                              "maximum": 32
+                                            },
+                                            {
+                                              "type": "number",
+                                              "minimum": -32,
+                                              "maximum": 32
+                                            },
+                                            {
+                                              "type": "number",
+                                              "minimum": -32,
+                                              "maximum": 32
+                                            }
+                                          ],
+                                          "items": false,
+                                          "minItems": 3,
+                                          "maxItems": 3
+                                        },
+                                        "material": {
+                                          "type": "string",
+                                          "pattern": "^[a-z][a-z0-9-]{0,63}$"
                                         }
-                                      ]
+                                      },
+                                      "required": [
+                                        "shape",
+                                        "size",
+                                        "position",
+                                        "material"
+                                      ],
+                                      "additionalProperties": false
                                     }
                                   },
                                   "collider": {
@@ -6283,160 +5568,75 @@
                                     "maxItems": 32,
                                     "type": "array",
                                     "items": {
-                                      "anyOf": [
-                                        {
-                                          "type": "object",
-                                          "properties": {
-                                            "shape": {
-                                              "type": "string",
-                                              "enum": [
-                                                "box",
-                                                "sphere",
-                                                "cone",
-                                                "cylinder"
-                                              ]
-                                            },
-                                            "size": {
-                                              "type": "array",
-                                              "prefixItems": [
-                                                {
-                                                  "type": "number",
-                                                  "exclusiveMinimum": 0,
-                                                  "maximum": 32
-                                                },
-                                                {
-                                                  "type": "number",
-                                                  "exclusiveMinimum": 0,
-                                                  "maximum": 32
-                                                },
-                                                {
-                                                  "type": "number",
-                                                  "exclusiveMinimum": 0,
-                                                  "maximum": 32
-                                                }
-                                              ],
-                                              "items": false,
-                                              "minItems": 3,
-                                              "maxItems": 3
-                                            },
-                                            "position": {
-                                              "type": "array",
-                                              "prefixItems": [
-                                                {
-                                                  "type": "number",
-                                                  "minimum": -32,
-                                                  "maximum": 32
-                                                },
-                                                {
-                                                  "type": "number",
-                                                  "minimum": -32,
-                                                  "maximum": 32
-                                                },
-                                                {
-                                                  "type": "number",
-                                                  "minimum": -32,
-                                                  "maximum": 32
-                                                }
-                                              ],
-                                              "items": false,
-                                              "minItems": 3,
-                                              "maxItems": 3
-                                            },
-                                            "color": {
-                                              "type": "string",
-                                              "pattern": "^#[0-9a-fA-F]{6}$"
-                                            },
-                                            "roughness": {
-                                              "default": 0.9,
-                                              "type": "number",
-                                              "minimum": 0,
-                                              "maximum": 1
-                                            },
-                                            "emissive": {
-                                              "type": "string",
-                                              "pattern": "^#[0-9a-fA-F]{6}$"
-                                            }
-                                          },
-                                          "required": [
-                                            "shape",
-                                            "size",
-                                            "position",
-                                            "color"
-                                          ],
-                                          "additionalProperties": false
+                                      "type": "object",
+                                      "properties": {
+                                        "shape": {
+                                          "type": "string",
+                                          "enum": [
+                                            "box",
+                                            "sphere",
+                                            "cone",
+                                            "cylinder"
+                                          ]
                                         },
-                                        {
-                                          "type": "object",
-                                          "properties": {
-                                            "shape": {
-                                              "type": "string",
-                                              "enum": [
-                                                "box",
-                                                "sphere",
-                                                "cone",
-                                                "cylinder"
-                                              ]
+                                        "size": {
+                                          "type": "array",
+                                          "prefixItems": [
+                                            {
+                                              "type": "number",
+                                              "exclusiveMinimum": 0,
+                                              "maximum": 32
                                             },
-                                            "size": {
-                                              "type": "array",
-                                              "prefixItems": [
-                                                {
-                                                  "type": "number",
-                                                  "exclusiveMinimum": 0,
-                                                  "maximum": 32
-                                                },
-                                                {
-                                                  "type": "number",
-                                                  "exclusiveMinimum": 0,
-                                                  "maximum": 32
-                                                },
-                                                {
-                                                  "type": "number",
-                                                  "exclusiveMinimum": 0,
-                                                  "maximum": 32
-                                                }
-                                              ],
-                                              "items": false,
-                                              "minItems": 3,
-                                              "maxItems": 3
+                                            {
+                                              "type": "number",
+                                              "exclusiveMinimum": 0,
+                                              "maximum": 32
                                             },
-                                            "position": {
-                                              "type": "array",
-                                              "prefixItems": [
-                                                {
-                                                  "type": "number",
-                                                  "minimum": -32,
-                                                  "maximum": 32
-                                                },
-                                                {
-                                                  "type": "number",
-                                                  "minimum": -32,
-                                                  "maximum": 32
-                                                },
-                                                {
-                                                  "type": "number",
-                                                  "minimum": -32,
-                                                  "maximum": 32
-                                                }
-                                              ],
-                                              "items": false,
-                                              "minItems": 3,
-                                              "maxItems": 3
-                                            },
-                                            "material": {
-                                              "type": "string",
-                                              "pattern": "^[a-z][a-z0-9-]{0,63}$"
+                                            {
+                                              "type": "number",
+                                              "exclusiveMinimum": 0,
+                                              "maximum": 32
                                             }
-                                          },
-                                          "required": [
-                                            "shape",
-                                            "size",
-                                            "position",
-                                            "material"
                                           ],
-                                          "additionalProperties": false
+                                          "items": false,
+                                          "minItems": 3,
+                                          "maxItems": 3
+                                        },
+                                        "position": {
+                                          "type": "array",
+                                          "prefixItems": [
+                                            {
+                                              "type": "number",
+                                              "minimum": -32,
+                                              "maximum": 32
+                                            },
+                                            {
+                                              "type": "number",
+                                              "minimum": -32,
+                                              "maximum": 32
+                                            },
+                                            {
+                                              "type": "number",
+                                              "minimum": -32,
+                                              "maximum": 32
+                                            }
+                                          ],
+                                          "items": false,
+                                          "minItems": 3,
+                                          "maxItems": 3
+                                        },
+                                        "material": {
+                                          "type": "string",
+                                          "pattern": "^[a-z][a-z0-9-]{0,63}$"
                                         }
-                                      ]
+                                      },
+                                      "required": [
+                                        "shape",
+                                        "size",
+                                        "position",
+                                        "material"
+                                      ],
+                                      "additionalProperties": false
                                     }
                                   },
                                   "collider": {
@@ -7350,160 +6550,75 @@
               "maxItems": 32,
               "type": "array",
               "items": {
-                "anyOf": [
-                  {
-                    "type": "object",
-                    "properties": {
-                      "shape": {
-                        "type": "string",
-                        "enum": [
-                          "box",
-                          "sphere",
-                          "cone",
-                          "cylinder"
-                        ]
-                      },
-                      "size": {
-                        "type": "array",
-                        "prefixItems": [
-                          {
-                            "type": "number",
-                            "exclusiveMinimum": 0,
-                            "maximum": 32
-                          },
-                          {
-                            "type": "number",
-                            "exclusiveMinimum": 0,
-                            "maximum": 32
-                          },
-                          {
-                            "type": "number",
-                            "exclusiveMinimum": 0,
-                            "maximum": 32
-                          }
-                        ],
-                        "items": false,
-                        "minItems": 3,
-                        "maxItems": 3
-                      },
-                      "position": {
-                        "type": "array",
-                        "prefixItems": [
-                          {
-                            "type": "number",
-                            "minimum": -32,
-                            "maximum": 32
-                          },
-                          {
-                            "type": "number",
-                            "minimum": -32,
-                            "maximum": 32
-                          },
-                          {
-                            "type": "number",
-                            "minimum": -32,
-                            "maximum": 32
-                          }
-                        ],
-                        "items": false,
-                        "minItems": 3,
-                        "maxItems": 3
-                      },
-                      "color": {
-                        "type": "string",
-                        "pattern": "^#[0-9a-fA-F]{6}$"
-                      },
-                      "roughness": {
-                        "default": 0.9,
-                        "type": "number",
-                        "minimum": 0,
-                        "maximum": 1
-                      },
-                      "emissive": {
-                        "type": "string",
-                        "pattern": "^#[0-9a-fA-F]{6}$"
-                      }
-                    },
-                    "required": [
-                      "shape",
-                      "size",
-                      "position",
-                      "color"
-                    ],
-                    "additionalProperties": false
+                "type": "object",
+                "properties": {
+                  "shape": {
+                    "type": "string",
+                    "enum": [
+                      "box",
+                      "sphere",
+                      "cone",
+                      "cylinder"
+                    ]
                   },
-                  {
-                    "type": "object",
-                    "properties": {
-                      "shape": {
-                        "type": "string",
-                        "enum": [
-                          "box",
-                          "sphere",
-                          "cone",
-                          "cylinder"
-                        ]
+                  "size": {
+                    "type": "array",
+                    "prefixItems": [
+                      {
+                        "type": "number",
+                        "exclusiveMinimum": 0,
+                        "maximum": 32
                       },
-                      "size": {
-                        "type": "array",
-                        "prefixItems": [
-                          {
-                            "type": "number",
-                            "exclusiveMinimum": 0,
-                            "maximum": 32
-                          },
-                          {
-                            "type": "number",
-                            "exclusiveMinimum": 0,
-                            "maximum": 32
-                          },
-                          {
-                            "type": "number",
-                            "exclusiveMinimum": 0,
-                            "maximum": 32
-                          }
-                        ],
-                        "items": false,
-                        "minItems": 3,
-                        "maxItems": 3
+                      {
+                        "type": "number",
+                        "exclusiveMinimum": 0,
+                        "maximum": 32
                       },
-                      "position": {
-                        "type": "array",
-                        "prefixItems": [
-                          {
-                            "type": "number",
-                            "minimum": -32,
-                            "maximum": 32
-                          },
-                          {
-                            "type": "number",
-                            "minimum": -32,
-                            "maximum": 32
-                          },
-                          {
-                            "type": "number",
-                            "minimum": -32,
-                            "maximum": 32
-                          }
-                        ],
-                        "items": false,
-                        "minItems": 3,
-                        "maxItems": 3
-                      },
-                      "material": {
-                        "type": "string",
-                        "pattern": "^[a-z][a-z0-9-]{0,63}$"
+                      {
+                        "type": "number",
+                        "exclusiveMinimum": 0,
+                        "maximum": 32
                       }
-                    },
-                    "required": [
-                      "shape",
-                      "size",
-                      "position",
-                      "material"
                     ],
-                    "additionalProperties": false
+                    "items": false,
+                    "minItems": 3,
+                    "maxItems": 3
+                  },
+                  "position": {
+                    "type": "array",
+                    "prefixItems": [
+                      {
+                        "type": "number",
+                        "minimum": -32,
+                        "maximum": 32
+                      },
+                      {
+                        "type": "number",
+                        "minimum": -32,
+                        "maximum": 32
+                      },
+                      {
+                        "type": "number",
+                        "minimum": -32,
+                        "maximum": 32
+                      }
+                    ],
+                    "items": false,
+                    "minItems": 3,
+                    "maxItems": 3
+                  },
+                  "material": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9-]{0,63}$"
                   }
-                ]
+                },
+                "required": [
+                  "shape",
+                  "size",
+                  "position",
+                  "material"
+                ],
+                "additionalProperties": false
               }
             },
             "collider": {
@@ -7646,41 +6761,6 @@
           ],
           "additionalProperties": false
         }
-      },
-      "terrain": {
-        "type": "object",
-        "properties": {
-          "amplitude": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 12
-          },
-          "wavelength": {
-            "type": "number",
-            "minimum": 30,
-            "maximum": 300
-          },
-          "tint": {
-            "type": "string",
-            "pattern": "^#[0-9a-fA-F]{6}$"
-          },
-          "scatterAsset": {
-            "type": "string",
-            "pattern": "^[a-z][a-z0-9-]{0,63}$"
-          },
-          "density": {
-            "default": 0.15,
-            "type": "number",
-            "minimum": 0,
-            "maximum": 0.6
-          }
-        },
-        "required": [
-          "amplitude",
-          "wavelength",
-          "tint"
-        ],
-        "additionalProperties": false
       },
       "weather": {
         "type": "object",
@@ -8551,61 +7631,6 @@
       "roughness"
     ]
   },
-  "ContextItem": {
-    "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "type": "object",
-    "properties": {
-      "kind": {
-        "type": "string",
-        "enum": [
-          "text",
-          "image",
-          "keyframe"
-        ]
-      },
-      "text": {
-        "default": "",
-        "type": "string"
-      },
-      "asset_id": {
-        "default": null,
-        "type": [
-          "string",
-          "null"
-        ]
-      },
-      "world_tick": {
-        "default": null,
-        "anyOf": [
-          {
-            "type": "integer",
-            "minimum": -9007199254740991,
-            "maximum": 9007199254740991
-          },
-          {
-            "type": "null"
-          }
-        ]
-      },
-      "confidence": {
-        "default": 1,
-        "type": "number",
-        "minimum": 0,
-        "maximum": 1
-      },
-      "metadata": {
-        "default": {},
-        "type": "object",
-        "propertyNames": {
-          "type": "string"
-        },
-        "additionalProperties": {}
-      }
-    },
-    "required": [
-      "kind"
-    ]
-  },
   "ObjectAppearance": {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -8816,169 +7841,6 @@
       "actions"
     ]
   },
-  "RenderRequest": {
-    "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "type": "object",
-    "properties": {
-      "recording_id": {
-        "type": "string",
-        "pattern": "^[a-f0-9-]{36}$"
-      },
-      "prompt": {
-        "default": "",
-        "type": "string",
-        "maxLength": 12000
-      },
-      "system_prompt": {
-        "default": "",
-        "type": "string",
-        "maxLength": 12000
-      },
-      "parameters": {
-        "default": {},
-        "type": "object",
-        "propertyNames": {
-          "type": "string"
-        },
-        "additionalProperties": {}
-      },
-      "context_buffer": {
-        "default": [],
-        "maxItems": 100,
-        "type": "array",
-        "items": {
-          "type": "object",
-          "properties": {
-            "kind": {
-              "type": "string",
-              "enum": [
-                "text",
-                "image",
-                "keyframe"
-              ]
-            },
-            "text": {
-              "default": "",
-              "type": "string"
-            },
-            "asset_id": {
-              "default": null,
-              "type": [
-                "string",
-                "null"
-              ]
-            },
-            "world_tick": {
-              "default": null,
-              "anyOf": [
-                {
-                  "type": "integer",
-                  "minimum": -9007199254740991,
-                  "maximum": 9007199254740991
-                },
-                {
-                  "type": "null"
-                }
-              ]
-            },
-            "confidence": {
-              "default": 1,
-              "type": "number",
-              "minimum": 0,
-              "maximum": 1
-            },
-            "metadata": {
-              "default": {},
-              "type": "object",
-              "propertyNames": {
-                "type": "string"
-              },
-              "additionalProperties": {}
-            }
-          },
-          "required": [
-            "kind"
-          ]
-        }
-      },
-      "history_keyframes": {
-        "default": [],
-        "maxItems": 50,
-        "type": "array",
-        "items": {
-          "type": "object",
-          "properties": {
-            "kind": {
-              "type": "string",
-              "enum": [
-                "text",
-                "image",
-                "keyframe"
-              ]
-            },
-            "text": {
-              "default": "",
-              "type": "string"
-            },
-            "asset_id": {
-              "default": null,
-              "type": [
-                "string",
-                "null"
-              ]
-            },
-            "world_tick": {
-              "default": null,
-              "anyOf": [
-                {
-                  "type": "integer",
-                  "minimum": -9007199254740991,
-                  "maximum": 9007199254740991
-                },
-                {
-                  "type": "null"
-                }
-              ]
-            },
-            "confidence": {
-              "default": 1,
-              "type": "number",
-              "minimum": 0,
-              "maximum": 1
-            },
-            "metadata": {
-              "default": {},
-              "type": "object",
-              "propertyNames": {
-                "type": "string"
-              },
-              "additionalProperties": {}
-            }
-          },
-          "required": [
-            "kind"
-          ]
-        }
-      },
-      "trajectory": {
-        "default": {
-          "frame_stride": 1
-        },
-        "type": "object",
-        "properties": {
-          "frame_stride": {
-            "default": 1,
-            "type": "integer",
-            "minimum": 1,
-            "maximum": 1000000
-          }
-        }
-      }
-    },
-    "required": [
-      "recording_id"
-    ]
-  },
   "RouteRequest": {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -9075,7 +7937,8 @@
     },
     "required": [
       "recording_id"
-    ]
+    ],
+    "additionalProperties": false
   },
   "SceneEnvironment": {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -9894,18 +8757,6 @@
       "bump"
     ]
   },
-  "TrajectorySampling": {
-    "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "type": "object",
-    "properties": {
-      "frame_stride": {
-        "default": 1,
-        "type": "integer",
-        "minimum": 1,
-        "maximum": 1000000
-      }
-    }
-  },
   "VideoRequest": {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -9998,147 +8849,11 @@
       "prompt_enhancement": {
         "default": false,
         "type": "boolean"
-      },
-      "trajectory": {
-        "default": null,
-        "anyOf": [
-          {
-            "type": "object",
-            "properties": {
-              "frame_stride": {
-                "default": 1,
-                "type": "integer",
-                "minimum": 1,
-                "maximum": 1000000
-              }
-            }
-          },
-          {
-            "type": "null"
-          }
-        ]
-      },
-      "context_buffer": {
-        "default": [],
-        "maxItems": 100,
-        "type": "array",
-        "items": {
-          "type": "object",
-          "properties": {
-            "kind": {
-              "type": "string",
-              "enum": [
-                "text",
-                "image",
-                "keyframe"
-              ]
-            },
-            "text": {
-              "default": "",
-              "type": "string"
-            },
-            "asset_id": {
-              "default": null,
-              "type": [
-                "string",
-                "null"
-              ]
-            },
-            "world_tick": {
-              "default": null,
-              "anyOf": [
-                {
-                  "type": "integer",
-                  "minimum": -9007199254740991,
-                  "maximum": 9007199254740991
-                },
-                {
-                  "type": "null"
-                }
-              ]
-            },
-            "confidence": {
-              "default": 1,
-              "type": "number",
-              "minimum": 0,
-              "maximum": 1
-            },
-            "metadata": {
-              "default": {},
-              "type": "object",
-              "propertyNames": {
-                "type": "string"
-              },
-              "additionalProperties": {}
-            }
-          },
-          "required": [
-            "kind"
-          ]
-        }
-      },
-      "history_keyframes": {
-        "default": [],
-        "maxItems": 50,
-        "type": "array",
-        "items": {
-          "type": "object",
-          "properties": {
-            "kind": {
-              "type": "string",
-              "enum": [
-                "text",
-                "image",
-                "keyframe"
-              ]
-            },
-            "text": {
-              "default": "",
-              "type": "string"
-            },
-            "asset_id": {
-              "default": null,
-              "type": [
-                "string",
-                "null"
-              ]
-            },
-            "world_tick": {
-              "default": null,
-              "anyOf": [
-                {
-                  "type": "integer",
-                  "minimum": -9007199254740991,
-                  "maximum": 9007199254740991
-                },
-                {
-                  "type": "null"
-                }
-              ]
-            },
-            "confidence": {
-              "default": 1,
-              "type": "number",
-              "minimum": 0,
-              "maximum": 1
-            },
-            "metadata": {
-              "default": {},
-              "type": "object",
-              "propertyNames": {
-                "type": "string"
-              },
-              "additionalProperties": {}
-            }
-          },
-          "required": [
-            "kind"
-          ]
-        }
       }
     },
     "required": [
       "recording_id"
-    ]
+    ],
+    "additionalProperties": false
   }
 }

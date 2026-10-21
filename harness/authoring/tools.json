@@ -33,13 +33,13 @@
     {
       "name": "apply_edit",
       "description": "Atomically create/replace/move/delete/set constraints; reject stale targets and collisions; preserve base PCG and record undo.",
-      "endpoint": "window.dynamicWorld.editor.apply(plan, package)",
+      "endpoint": "window.chrona.editor.apply(plan, package)",
       "mutation": "explicit world edit"
     },
     {
       "name": "undo_edit",
       "description": "Restore previous object state and collisions without resetting the clock.",
-      "endpoint": "window.dynamicWorld.runtime.editor.undo()",
+      "endpoint": "window.chrona.runtime.editor.undo()",
       "mutation": "explicit world edit"
     },
     {
@@ -88,7 +88,7 @@
     {
       "name": "install_content",
       "description": "Browser world capability: pin future chunks or explicitly patch a loaded object; preserve clock and old chunk recipes.",
-      "endpoint": "window.dynamicWorld.content.install(package, options)",
+      "endpoint": "window.chrona.content.install(package, options)",
       "mutation": "explicit world edit"
     }
   ]

@@ -1,4 +1,7 @@
-import type { WorldSnapshot, WorldSummary } from '../../../protocol/src/contracts';
+import type {
+  WorldSnapshot,
+  WorldSummary,
+} from "../../../protocol/src/contracts";
 export interface WorldStorePort {
   list(): Promise<WorldSummary[]>;
   read(id: string): Promise<WorldSnapshot>;

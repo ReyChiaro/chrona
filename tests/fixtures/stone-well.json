@@ -1,0 +1,124 @@
+{
+  "protocol": 1,
+  "id": "test-stone-well",
+  "version": "1.0.0",
+  "title": "山间石井",
+  "description": "Novel geometry used only by API contract tests; not a production demo recipe.",
+  "assets": {
+    "well": {
+      "label": "苔石水井",
+      "parts": [
+        {
+          "shape": "cylinder",
+          "size": [
+            2,
+            1.2,
+            2
+          ],
+          "position": [
+            0,
+            0.6,
+            0
+          ],
+          "material": "surface-0"
+        },
+        {
+          "shape": "cylinder",
+          "size": [
+            1.5,
+            0.1,
+            1.5
+          ],
+          "position": [
+            0,
+            1.25,
+            0
+          ],
+          "material": "surface-1"
+        },
+        {
+          "shape": "box",
+          "size": [
+            0.2,
+            2.3,
+            0.2
+          ],
+          "position": [
+            -0.7,
+            1.5,
+            0
+          ],
+          "material": "surface-2"
+        },
+        {
+          "shape": "box",
+          "size": [
+            0.2,
+            2.3,
+            0.2
+          ],
+          "position": [
+            0.7,
+            1.5,
+            0
+          ],
+          "material": "surface-3"
+        },
+        {
+          "shape": "cone",
+          "size": [
+            2.8,
+            0.8,
+            2.8
+          ],
+          "position": [
+            0,
+            2.7,
+            0
+          ],
+          "material": "surface-4"
+        }
+      ],
+      "collider": {
+        "halfExtents": [
+          0.8,
+          0.6,
+          0.8
+        ],
+        "center": [
+          0,
+          0.6,
+          0
+        ]
+      },
+      "effect": "none",
+      "materials": {
+        "surface-0": {
+          "label": "surface-0",
+          "color": "#7d8876",
+          "roughness": 0.95
+        },
+        "surface-1": {
+          "label": "surface-1",
+          "color": "#719fa8",
+          "roughness": 0.3
+        },
+        "surface-2": {
+          "label": "surface-2",
+          "color": "#79583e",
+          "roughness": 0.9
+        },
+        "surface-3": {
+          "label": "surface-3",
+          "color": "#79583e",
+          "roughness": 0.9
+        },
+        "surface-4": {
+          "label": "surface-4",
+          "color": "#7f5547",
+          "roughness": 0.9
+        }
+      }
+    }
+  }
+}

@@ -17,9 +17,7 @@ dist/
 docs/
 node_modules/
 report/
-tests/
 test-results/
-scripts/
 playwright-report/
 
 !.env.example
